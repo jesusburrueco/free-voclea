@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 14:00
+- Tarea: Fase 0 "Banco de pruebas: test/fixtures con audio sintetico".
+- Hecho: generadores deterministas (seno, barrido exponencial, ruido con semilla) y codec WAV en test/fixtures/signals.ts, `npm run fixtures` escribe los WAV, test que verifica generadores y que los WAV coinciden byte a byte.
+- Verificacion: build, test (26), lint y e2e ok (e2e con CHROMIUM_PATH=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome, el Chromium por defecto del entorno no coincide con Playwright 1.64.1).
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: "Selector de dispositivo de entrada y restricciones de getUserMedia".
+- Bloqueos: ninguno.
+
 ## 2026-10-27 13:00
 - Tarea: Fase 0 "Desbloqueo de AudioContext por gesto y pantalla de permisos de micro".
 - Hecho: AudioContext creado y reanudado antes de cualquier await (iOS), mic-error.ts (clasifica errores y mensajes), texto de permiso en UI, boton Reintentar, deteccion de navegador sin soporte.
