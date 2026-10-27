@@ -3,7 +3,8 @@ import { toDb } from './audio/level';
 import { classifyMicError, isMicSupported, MIC_ERROR_MESSAGES } from './audio/mic-error';
 import { resolveDeviceId, toInputDevices } from './audio/constraints';
 import { midiToName, freqToMidi } from './notes';
-import { BEND_CENTER, BEND_RANGE_DEFAULT, BEND_RANGE_MAX, BEND_RANGE_MIN, bendSemitones, bendValue, clampBendRange } from './audio/bend';
+import { SCALES } from './scales';
+import { BEND_CENTER, BEND_MODES, BEND_TARGETS, bendAffects, bendForMode, type BendMode, type BendTarget, BEND_RANGE_DEFAULT, BEND_RANGE_MAX, BEND_RANGE_MIN, bendValue, clampBendRange } from './audio/bend';
 import { formatLatency } from './audio/latency';
 import { isMidiSupported, MidiOutput } from './midi/output';
 import type { Engine } from './audio/engine';
@@ -26,8 +27,17 @@ if (app) {
         <select id="puerto" aria-label="Puerto MIDI" disabled><option value="">Sin puerto</option></select>
         <p id="midi-estado" aria-live="polite"></p>
       </section>
+      <section aria-label="Tonalidad y escala">
+        <label for="tonica">Tonalidad</label>
+        <select id="tonica" aria-label="Tonalidad">${['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((n, i) => `<option value="${i}">${n}</option>`).join('')}</select>
+        <label for="escala">Escala</label>
+        <select id="escala" aria-label="Escala">${SCALES.map((sc) => `<option value="${sc.id}">${sc.name}</option>`).join('')}</select>
+      </section>
       <section aria-label="Pitch bend">
-        <label class="sonido"><input id="bend" type="checkbox" /> Pitch bend</label>
+        <label for="bend">Pitch bend a</label>
+        <select id="bend" aria-label="Destino del pitch bend">${BEND_TARGETS.map((t) => `<option value="${t.id}">${t.name}</option>`).join('')}</select>
+        <label for="modo-bend">Modo de bend</label>
+        <select id="modo-bend" aria-label="Modo de bend">${BEND_MODES.map((m) => `<option value="${m.id}">${m.name}</option>`).join('')}</select>
         <label for="rango">Rango de bend (semitonos)</label>
         <input id="rango" type="number" inputmode="numeric" min="${BEND_RANGE_MIN}" max="${BEND_RANGE_MAX}" step="1" value="${BEND_RANGE_DEFAULT}" />
       </section>
@@ -52,26 +62,35 @@ if (app) {
   const portSel = app.querySelector<HTMLSelectElement>('#puerto');
   const midiStatus = app.querySelector<HTMLParagraphElement>('#midi-estado');
 
-  const bendBox = app.querySelector<HTMLInputElement>('#bend');
+  const bendSel = app.querySelector<HTMLSelectElement>('#bend');
+  const bendModeSel = app.querySelector<HTMLSelectElement>('#modo-bend');
+  const tonicSel = app.querySelector<HTMLSelectElement>('#tonica');
+  const scaleSel = app.querySelector<HTMLSelectElement>('#escala');
+  const applyScale = (): void => engine?.setScale(Number(tonicSel?.value ?? 0), scaleSel?.value ?? 'chromatic');
+  tonicSel?.addEventListener('change', applyScale);
+  scaleSel?.addEventListener('change', applyScale);
+  let anchor: number | null = null;
   const rangeIn = app.querySelector<HTMLInputElement>('#rango');
   let heldNote: number | null = null;
   const bendRange = (): number => clampBendRange(Number(rangeIn?.value));
   const applyBend = (freq: number): void => {
-    if (!bendBox?.checked || heldNote === null || freq <= 0) return;
-    const st = bendSemitones(freqToMidi(freq), heldNote, bendRange());
+    if (!bendAffects((bendSel?.value ?? 'ninguno') as BendTarget, 'melodia') || heldNote === null || freq <= 0) return;
+    const midiNow = freqToMidi(freq);
+    anchor ??= midiNow;
+    const st = bendForMode((bendModeSel?.value ?? 'fiel') as BendMode, midiNow, heldNote, anchor, bendRange());
     engine?.setBend(st);
     midi?.sendBend(bendValue(st, bendRange()));
   };
   const resetBend = (): void => {
+    anchor = null;
     engine?.setBend(0);
     midi?.sendBend(BEND_CENTER);
   };
   rangeIn?.addEventListener('change', () => {
     rangeIn.value = String(bendRange());
   });
-  bendBox?.addEventListener('change', () => {
-    if (!bendBox.checked) resetBend();
-  });
+  bendSel?.addEventListener('change', resetBend);
+  bendModeSel?.addEventListener('change', resetBend);
 
   const refreshPorts = (): void => {
     if (!midi || !portSel || !midiStatus) return;
@@ -164,6 +183,7 @@ if (app) {
           delete status.dataset['error'];
         }, select?.value || undefined);
         engine.setSound(sound?.checked ?? true);
+        applyScale();
         void refreshDevices();
         if (latencyEl) latencyEl.textContent = formatLatency(engine.latency());
         button.textContent = 'Detener';

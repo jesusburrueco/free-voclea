@@ -29,3 +29,28 @@ export function bendMessage(value: number, channel = 1): number[] {
   const v = Math.min(BEND_MAX, Math.max(0, Math.round(value)));
   return [0xe0 | ch, v & 0x7f, v >> 7];
 }
+
+/** Modo de bend: "fiel" sigue la voz respecto a la nota viva; "anclado" ignora el error inicial y solo sigue el movimiento desde el ataque. */
+export type BendMode = 'fiel' | 'anclado';
+export const BEND_MODES: readonly { id: BendMode; name: string }[] = [
+  { id: 'fiel', name: 'Fiel (sigue la voz)' },
+  { id: 'anclado', name: 'Anclado (desde el ataque)' },
+];
+
+/** Destino del bend: que salidas lo reciben. */
+export type BendTarget = 'ninguno' | 'melodia' | 'acordes' | 'ambos';
+export const BEND_TARGETS: readonly { id: BendTarget; name: string }[] = [
+  { id: 'ninguno', name: 'Ninguno' },
+  { id: 'melodia', name: 'Melodia' },
+  { id: 'acordes', name: 'Acordes' },
+  { id: 'ambos', name: 'Melodia y acordes' },
+];
+
+export function bendAffects(target: BendTarget, output: 'melodia' | 'acordes'): boolean {
+  return target === 'ambos' || target === output;
+}
+
+/** Desviacion en semitonos segun el modo. `anchor` es el pitch (MIDI continuo) al inicio de la nota. */
+export function bendForMode(mode: BendMode, midi: number, note: number, anchor: number, range: number): number {
+  return mode === 'anclado' ? bendSemitones(midi - anchor, 0, range) : bendSemitones(midi, note, range);
+}

@@ -2,6 +2,7 @@ import workletUrl from './capture-processor.ts?worker&url';
 import { buildAudioConstraints } from './constraints';
 import type { Level } from './level';
 import { ANALYSIS_WINDOW, REPORT_RATE, estimateLatency, type LatencyReport } from './latency';
+import { NoteMapper } from './quantizer';
 import { Synth } from './synth';
 
 export interface Engine {
@@ -11,6 +12,8 @@ export interface Engine {
   setBend(semitones: number): void;
   /** Estimacion actual de latencia extremo a extremo. */
   latency(): LatencyReport;
+  /** Tonica (0..11) y escala a la que se cuantizan las notas. */
+  setScale(tonic: number, scaleId: string): void;
   stop(): Promise<void>;
 }
 
@@ -33,8 +36,11 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
     const node = new AudioWorkletNode(ctx, 'capture-processor', { numberOfOutputs: 0 });
     const synth = new Synth(ctx);
     let sound = true;
+    const mapper = new NoteMapper();
     node.port.onmessage = (e: MessageEvent<Level>) => {
-      for (const ev of e.data.events ?? []) {
+      const events = mapper.process(e.data.events ?? []);
+      e.data.events = events;
+      for (const ev of events) {
         if (ev.type === 'on' && sound) synth.noteOn(ev.note);
         else if (ev.type === 'off') synth.noteOff();
       }
@@ -57,6 +63,9 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
       setSound(on) {
         sound = on;
         if (!on) synth.noteOff();
+      },
+      setScale(tonic, scaleId) {
+        mapper.setScale(tonic, scaleId);
       },
       setBend(semitones) {
         synth.setBend(semitones);

@@ -34,3 +34,23 @@ describe('pitch bend', () => {
     expect(bendMessage(12288)).toEqual([0xe0, 0, 96]);
   });
 });
+
+import { bendAffects, bendForMode } from '../src/audio/bend';
+
+describe('modos de bend', () => {
+  it('fiel mide contra la nota viva', () => {
+    expect(bendForMode('fiel', 60.5, 60, 60.4, 2)).toBeCloseTo(0.5, 6);
+  });
+  it('anclado mide contra el pitch del ataque', () => {
+    expect(bendForMode('anclado', 60.5, 60, 60.4, 2)).toBeCloseTo(0.1, 6);
+  });
+  it('limita al rango', () => {
+    expect(bendForMode('anclado', 70, 60, 60, 2)).toBe(2);
+  });
+  it('destinos', () => {
+    expect(bendAffects('ninguno', 'melodia')).toBe(false);
+    expect(bendAffects('melodia', 'melodia')).toBe(true);
+    expect(bendAffects('melodia', 'acordes')).toBe(false);
+    expect(bendAffects('ambos', 'acordes')).toBe(true);
+  });
+});

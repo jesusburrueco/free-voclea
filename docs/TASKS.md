@@ -19,8 +19,8 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Salida Web MIDI con deteccion de soporte y selector de puerto
 - [x] Pitch bend continuo con rango configurable
 - [x] Medicion de latencia extremo a extremo y visualizacion en ajustes
-- [ ] Modos de pitch bend anclado y fiel (selector, nombres propios)
-- [ ] Bend activable por destino: melodia, acordes, ambos o ninguno
+- [x] Modos de pitch bend anclado y fiel (selector, nombres propios)
+- [x] Bend activable por destino: melodia, acordes, ambos o ninguno
 - [ ] Teclado de salida con silenciado de notas (tactil, multitouch)
 - [ ] Visualizacion de afinacion en tiempo real (rueda de notas propia)
 - [ ] Sugerencia de tonalidad a partir de notas cantadas
