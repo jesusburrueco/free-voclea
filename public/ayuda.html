@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111318" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <title>Ayuda - Voz a MIDI</title>
+    <style>
+      :root { color-scheme: dark light; font-family: system-ui, sans-serif; }
+      body { margin: 0; background: #111318; color: #e8eaf0; }
+      main { max-width: 560px; margin: 0 auto; padding: 16px; line-height: 1.5; }
+      h1 { font-size: 1.5rem; }
+      h2 { font-size: 1.15rem; margin-top: 28px; }
+      a.volver { display: inline-flex; align-items: center; min-height: 44px; color: #8db4ff; }
+      li { margin-bottom: 6px; }
+      @media (prefers-color-scheme: light) {
+        body { background: #f6f7fa; color: #14161c; }
+        a.volver { color: #2b62d6; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="volver" href="/">Volver a la app</a>
+      <h1>Ayuda</h1>
+      <p>Voz a MIDI convierte tu voz en notas y golpes de percusion. Todo el audio se procesa en tu dispositivo y no se envia a ningun servidor.</p>
+
+      <h2>Empezar</h2>
+      <ol>
+        <li>Pulsa <strong>Activar micro</strong> y acepta el permiso. Usa auriculares para que el sonido interno no entre de vuelta en el micro.</li>
+        <li>Canta o tararea una nota larga. La rueda muestra la nota y cuanto te desvias, en cents.</li>
+        <li>Abre <strong>Calibracion y perfiles</strong> y pulsa <strong>Calibrar</strong>: primero silencio, luego tu nota mas grave y la mas aguda.</li>
+      </ol>
+
+      <h2>Melodia y escala</h2>
+      <ul>
+        <li><strong>Escala y notas</strong>: elige tonalidad y escala; tus notas se ajustan a la nota de la escala mas cercana.</li>
+        <li>Toca una tecla del teclado para silenciar esa nota. Vuelve a tocarla para permitirla.</li>
+        <li>Tras cantar unas notas aparece una sugerencia de tonalidad que puedes aplicar con un toque.</li>
+        <li>En <strong>Melodia y acordes</strong> ajustas octava, transposicion y el rango de notas permitido.</li>
+      </ul>
+
+      <h2>Acordes</h2>
+      <p>Activa <strong>Acordes</strong> y cada nota cantada genera el acorde diatonico de ese grado. En <strong>Tipo de acorde</strong> eliges inversion, apertura, bajo y la variante de cada grado (triada, septima, sus2, sus4).</p>
+
+      <h2>Pitch bend y control</h2>
+      <ul>
+        <li><strong>Pitch bend</strong>: elige a que salida afecta, el rango en semitonos y el modo. Fiel sigue tu voz respecto a la nota; Anclado solo sigue el movimiento desde el ataque.</li>
+        <li><strong>Control (CC)</strong>: envia el volumen de tu voz y el brillo de la vocal como mensajes de control MIDI.</li>
+      </ul>
+
+      <h2>Beatbox</h2>
+      <ol>
+        <li>Activa el micro y abre <strong>Beatbox (triggers)</strong>.</li>
+        <li>En un sonido pulsa <strong>Grabar</strong> y repite tu golpe cinco veces, siempre igual.</li>
+        <li>Repite con los demas sonidos. Ponles nombre, nota MIDI y voz interna.</li>
+        <li>Si dispara de mas, baja la <strong>Sensibilidad</strong>; si se pierden golpes, subela.</li>
+      </ol>
+
+      <h2>MIDI y sonido interno</h2>
+      <ul>
+        <li>En ordenadores y Android con Chrome o Edge puedes enviar MIDI a otros programas: pulsa <strong>Activar MIDI</strong> y elige un puerto.</li>
+        <li>iPhone y iPad no permiten Web MIDI. Alli la app funciona con su sonido interno.</li>
+        <li>Si el sonido interno se oye retrasado, mira la latencia estimada en <strong>MIDI y audio</strong> y prueba con auriculares con cable.</li>
+      </ul>
+
+      <h2>Perfiles</h2>
+      <p>Guarda todos tus ajustes con un nombre, cargalos mas tarde y exportalos o importalos como archivo JSON para llevarlos a otro dispositivo.</p>
+
+      <h2>Problemas frecuentes</h2>
+      <ul>
+        <li><strong>No oigo nada</strong>: comprueba que <em>Sonido interno</em> esta activado y el volumen del dispositivo.</li>
+        <li><strong>El micro no se activa</strong>: revisa el permiso del navegador para este sitio y que ninguna otra aplicacion use el micro.</li>
+        <li><strong>Notas inestables</strong>: sube la <strong>Pegajosidad</strong> o recalibra en una sala mas silenciosa.</li>
+      </ul>
+    </main>
+  </body>
+</html>

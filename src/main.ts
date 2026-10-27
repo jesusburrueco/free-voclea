@@ -61,10 +61,13 @@ if (app) {
         <input id="ganancia" type="range" min="-12" max="24" step="1" aria-label="Nivel de entrada en dB" />
         <label for="pegajosidad">Pegajosidad de la nota</label>
         <input id="pegajosidad" type="range" min="0" max="1" step="0.05" aria-label="Pegajosidad de la nota" />
+        <label for="tema">Tema</label>
+        <select id="tema" aria-label="Tema"><option value="auto">Automatico</option><option value="oscuro">Oscuro</option><option value="claro">Claro</option></select>
         <label for="escala-ui">Tamano de la interfaz</label>
         <select id="escala-ui" aria-label="Tamano de la interfaz">${[100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200].map((v) => `<option value="${v}">${v} %</option>`).join('')}</select>
         <p id="latencia" aria-live="off">Latencia: activa el micro para medirla.</p>
       </details>
+      <p><a id="ayuda" href="/ayuda.html">Ayuda</a></p>
     </main>
   `;
   const button = app.querySelector<HTMLButtonElement>('#mic');
@@ -83,6 +86,7 @@ if (app) {
     if (!engine) return;
     for (const ev of engine.setOutput(st.output)) midi?.sendOut(ev);
     engine.setPresets(st.presets.melody, st.presets.chord);
+    engine.setCentroid(st.cc.timbre.on);
   };
   const panel = mountOutputPanel(app.querySelector<HTMLElement>('#salida') as HTMLElement, applyPanel);
   cc.setConfig(panel.state().cc);
@@ -187,11 +191,15 @@ if (app) {
   const gainIn = app.querySelector<HTMLInputElement>('#ganancia');
   const stickIn = app.querySelector<HTMLInputElement>('#pegajosidad');
   const uiSel = app.querySelector<HTMLSelectElement>('#escala-ui');
+  const themeSel = app.querySelector<HTMLSelectElement>('#tema');
+  if (themeSel) themeSel.value = settings.tema;
   if (gainIn) gainIn.value = String(settings.inputGainDb);
   if (stickIn) stickIn.value = String(settings.stickiness);
   if (uiSel) uiSel.value = String(settings.uiScale);
   const applyUiScale = (): void => {
     document.body.style.fontSize = `${settings.uiScale}%`;
+    if (settings.tema === 'auto') delete document.documentElement.dataset['tema'];
+    else document.documentElement.dataset['tema'] = settings.tema;
   };
   applyUiScale();
   const commitTuning = (): void => {
@@ -200,13 +208,14 @@ if (app) {
       inputGainDb: Number(gainIn?.value ?? 0),
       stickiness: Number(stickIn?.value ?? 0.25),
       uiScale: Number(uiSel?.value ?? 100),
+      tema: (themeSel?.value ?? 'auto') as AppSettings['tema'],
     };
     saveSettings(settings);
     engine?.setInputGain(settings.inputGainDb);
     engine?.setStickiness(settings.stickiness);
     applyUiScale();
   };
-  for (const input of [gainIn, stickIn, uiSel]) input?.addEventListener('change', commitTuning);
+  for (const input of [gainIn, stickIn, uiSel, themeSel]) input?.addEventListener('change', commitTuning);
   refreshWheelScale();
   for (const input of [tonicSel, scaleSel, bendSel, bendModeSel, rangeIn, sound]) input?.addEventListener('change', persist);
 

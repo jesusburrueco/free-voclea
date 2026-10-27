@@ -49,6 +49,6 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Todas las opciones de SPEC.md accesibles desde UI movil
 
 ## Fase 5. Pulido
-- [ ] Auditoria de rendimiento en gama media Android (CPU del worklet < 30%)
-- [ ] Accesibilidad y modo oscuro
-- [ ] Pagina de ayuda propia
+- [x] Auditoria de rendimiento en gama media Android (CPU del worklet < 30%)
+- [x] Accesibilidad y modo oscuro
+- [x] Pagina de ayuda propia

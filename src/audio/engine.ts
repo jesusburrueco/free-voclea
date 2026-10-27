@@ -25,6 +25,8 @@ export interface Engine {
   setTriggersEnabled(on: boolean): void;
   /** Umbral de entrada para abrir una nota, en dBFS. */
   setThreshold(db: number): void;
+  /** Activa el calculo del centroide espectral (solo hace falta para el CC de timbre). */
+  setCentroid(on: boolean): void;
   /** Pegajosidad de la nota, 0..1. */
   setStickiness(value: number): void;
   /** Ganancia de entrada en dB. */
@@ -112,6 +114,9 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
       setTriggersEnabled(on) {
         triggersOn = on;
         node.port.postMessage({ type: 'enabled', value: on });
+      },
+      setCentroid(on) {
+        node.port.postMessage({ type: 'centroid', value: on });
       },
       setStickiness(value) {
         node.port.postMessage({ type: 'stickiness', value });

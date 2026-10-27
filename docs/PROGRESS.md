@@ -50,6 +50,16 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente: "Modos de pitch bend anclado y fiel".
 - Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
 
+## 2026-10-27 20:00
+- Tarea: sesion ampliada a peticion del usuario: resto de Fase 1 y Fases 2 a 5 (todas las tareas de TASKS.md quedan [x]).
+- Hecho: modos y destino de bend, cuantizacion a escala en UI, rueda de afinacion, teclado de notas silenciables, sugerencia de tonalidad; triggers (onsets, MFCC en el worklet, k-NN, entrenamiento, mapeo, velocidad, kit interno); acordes diatonicos con variantes, bajo, inversiones, CC de volumen y timbre, octava, rango, canales y presets de sinte; perfiles en IndexedDB con exportar e importar JSON, calibracion guiada, nivel de entrada, pegajosidad, tema claro y oscuro, escala de interfaz, pagina de ayuda propia (public/ayuda.html), interfaz en grupos plegables.
+- Verificacion: build, lint, test (134) y e2e (21, con CHROMIUM_PATH) ok en dos pasadas seguidas. Capturas en `artifacts/`.
+- Rendimiento: test/perf.test.ts estima la carga del worklet con un factor x6 de gama media (peor caso con ruido): ~21%, bajo el 30%. Es una estimacion; falta medir en un Android real. YIN ahora es perezoso y diezma a la mitad.
+- Limites conocidos: el e2e usa el micro falso de Chromium, asi que la precision del clasificador de beatbox y del pitch con voz real solo se comprueba con fixtures sinteticos. Sugerencia de acordes para una melodia y presets de mapeo tipo Pop (SPEC) no se hicieron. Velocidad "fija" solo afecta al MIDI, no al kit interno.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: probar en un movil real (iOS y Android), medir CPU y latencia, afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-10-27 15:00
 - Tarea: Fase 0 "Selector de dispositivo de entrada y restricciones de getUserMedia".
 - Hecho: src/audio/constraints.ts (sin AGC, supresion de ruido ni eco, mono, deviceId exact), selector en UI con lista por enumerateDevices, devicechange y recuerdo en localStorage, fallback si el dispositivo guardado desaparece.

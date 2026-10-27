@@ -20,7 +20,8 @@ type WorkletCommand =
   | { type: 'sensitivity'; value: number }
   | { type: 'enabled'; value: boolean }
   | { type: 'threshold'; db: number }
-  | { type: 'stickiness'; value: number };
+  | { type: 'stickiness'; value: number }
+  | { type: 'centroid'; value: boolean };
 
 const WINDOW = ANALYSIS_WINDOW;
 const REPORT_HZ = REPORT_RATE;
@@ -36,6 +37,7 @@ class CaptureProcessor extends AudioWorkletProcessor {
   private pending = -1;
   private armed: number | null = null;
   private triggersOn = true;
+  private centroidOn = false;
 
   constructor() {
     super();
@@ -45,6 +47,7 @@ class CaptureProcessor extends AudioWorkletProcessor {
       else if (c.type === 'arm') this.armed = c.slot;
       else if (c.type === 'sensitivity') this.onset.setOptions({ riseDb: sensitivityToRise(c.value) });
       else if (c.type === 'enabled') this.triggersOn = c.value;
+      else if (c.type === 'centroid') this.centroidOn = c.value;
       else if (c.type === 'stickiness') this.segmenter.setOptions({ stickiness: c.value });
       else if (c.type === 'threshold') this.segmenter.setOptions({ thresholdDb: c.db });
     };
@@ -81,7 +84,7 @@ class CaptureProcessor extends AudioWorkletProcessor {
       const { rms, peak } = measureLevel(this.window.subarray(WINDOW - n));
       const { freq, clarity } = n >= minWindow(sampleRate) ? detectPitch(this.window.subarray(WINDOW - n), sampleRate) : { freq: 0, clarity: 0 };
       const events = this.segmenter.update({ rms, freq, clarity }, 1000 / REPORT_HZ);
-      const centroid = n >= FEATURE_LEN && rms > 0.003 ? spectralCentroidHz(this.window.subarray(WINDOW - n), sampleRate) : 0;
+      const centroid = this.centroidOn && n >= FEATURE_LEN && rms > 0.003 ? spectralCentroidHz(this.window.subarray(WINDOW - n), sampleRate) : 0;
       this.port.postMessage({ rms, peak, freq, clarity, events, centroid });
     }
     return true;

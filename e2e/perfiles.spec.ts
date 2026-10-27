@@ -23,8 +23,7 @@ test('los perfiles se guardan, cargan, exportan e importan', async ({ page }) =>
   await page.getByRole('combobox', { name: 'Escala' }).selectOption('blues');
   await page.getByLabel('Octava de la melodia').fill('-1');
   await page.getByLabel('Octava de la melodia').blur();
-  await page.getByRole('button', { name: 'Cargar perfil' }).click();
-  await page.waitForLoadState('load');
+  await Promise.all([page.waitForEvent('load'), page.getByRole('button', { name: 'Cargar perfil' }).click()]);
   await abrirTodo(page);
   await expect(page.getByRole('combobox', { name: 'Escala' })).toHaveValue('dorian');
   await expect(page.getByLabel('Octava de la melodia')).toHaveValue('2');

@@ -2,8 +2,49 @@
   color-scheme: dark;
   --bg: #111318;
   --fg: #e8eaf0;
-  --muted: #9aa0ad;
+  --muted: #a8aebb;
+  --panel: #2a3042;
+  --field: #1a1d27;
+  --accent: #4f8cff;
+  --needle: #ffb74d;
   font-family: system-ui, sans-serif;
+}
+
+:root[data-tema='claro'] {
+  color-scheme: light;
+  --bg: #f6f7fa;
+  --fg: #14161c;
+  --muted: #4a5060;
+  --panel: #d5dae6;
+  --field: #ffffff;
+  --accent: #2b62d6;
+  --needle: #b45f00;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema]) {
+    color-scheme: light;
+    --bg: #f6f7fa;
+    --fg: #14161c;
+    --muted: #4a5060;
+    --panel: #d5dae6;
+    --field: #ffffff;
+    --accent: #2b62d6;
+    --needle: #b45f00;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 * {
@@ -38,7 +79,7 @@ button {
   padding: 0 20px;
   font: inherit;
   color: var(--fg);
-  background: #2a3042;
+  background: var(--panel);
   border: 0;
   border-radius: 8px;
 }
@@ -63,7 +104,7 @@ select {
   padding: 0 12px;
   font: inherit;
   color: var(--fg);
-  background: #2a3042;
+  background: var(--panel);
   border: 0;
   border-radius: 8px;
 }
@@ -97,13 +138,13 @@ select {
   stroke-width: 1;
 }
 .rueda path.en-escala {
-  fill: #2a3042;
+  fill: var(--panel);
 }
 .rueda path.fuera {
-  fill: #1a1d27;
+  fill: var(--field);
 }
 .rueda path.activa {
-  fill: #4f8cff;
+  fill: var(--accent);
 }
 .rueda text {
   fill: var(--fg);
@@ -113,7 +154,7 @@ select {
   font-size: 16px;
 }
 .rueda line {
-  stroke: #ffb74d;
+  stroke: var(--needle);
   stroke-width: 3;
   stroke-linecap: round;
 }
@@ -128,19 +169,19 @@ select {
   touch-action: manipulation;
 }
 .teclado button.negra {
-  background: #1a1d27;
+  background: var(--field);
 }
 .teclado button[aria-pressed='true'] {
   opacity: 0.35;
   text-decoration: line-through;
 }
 .teclado button.suena {
-  background: #4f8cff;
+  background: var(--accent);
 }
 .slot {
   margin: 12px 0 0;
   padding: 8px 12px 12px;
-  border: 1px solid #2a3042;
+  border: 1px solid var(--panel);
   border-radius: 8px;
 }
 .slot legend {
@@ -154,8 +195,8 @@ select {
   margin-top: 4px;
   font: inherit;
   color: var(--fg);
-  background: #1a1d27;
-  border: 1px solid #2a3042;
+  background: var(--field);
+  border: 1px solid var(--panel);
   border-radius: 8px;
   padding: 0 8px;
 }
@@ -175,14 +216,14 @@ input[type='text'] {
   padding: 0 8px;
   font: inherit;
   color: var(--fg);
-  background: #1a1d27;
-  border: 1px solid #2a3042;
+  background: var(--field);
+  border: 1px solid var(--panel);
   border-radius: 8px;
 }
 .grupo {
   margin-top: 12px;
   padding: 0 12px 12px;
-  border: 1px solid #2a3042;
+  border: 1px solid var(--panel);
   border-radius: 8px;
 }
 summary {
@@ -194,4 +235,10 @@ summary {
 }
 #mic {
   width: 100%;
+}
+#ayuda {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent);
 }

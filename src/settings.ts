@@ -20,6 +20,8 @@ export interface AppSettings {
   stickiness: number;
   /** Escala de la interfaz en % (100..200). */
   uiScale: number;
+  /** Tema: automatico (segun el sistema), oscuro o claro. */
+  tema: 'auto' | 'oscuro' | 'claro';
 }
 
 export const defaultSettings: AppSettings = {
@@ -34,6 +36,7 @@ export const defaultSettings: AppSettings = {
   inputGainDb: 0,
   stickiness: 0.25,
   uiScale: 100,
+  tema: 'auto',
 };
 
 export function sanitizeSettings(raw: unknown): AppSettings {
@@ -53,6 +56,7 @@ export function sanitizeSettings(raw: unknown): AppSettings {
     inputGainDb: int(r['inputGainDb'], -12, 24, d.inputGainDb),
     stickiness: typeof r['stickiness'] === 'number' && Number.isFinite(r['stickiness']) ? Math.min(1, Math.max(0, r['stickiness'])) : d.stickiness,
     uiScale: Math.round(int(r['uiScale'], 100, 200, d.uiScale) / 10) * 10,
+    tema: r['tema'] === 'oscuro' || r['tema'] === 'claro' ? r['tema'] : 'auto',
     thresholdDb: typeof th === 'number' && Number.isFinite(th) ? Math.min(-20, Math.max(-70, th)) : null,
   };
 }
