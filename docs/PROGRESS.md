@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 18:00
+- Tarea: Fase 1 "Cuantizacion a escala y tonalidad (todas las escalas de SPEC.md)".
+- Hecho: src/scales.ts (15 escalas: 14 documentadas mas cromatica, quantizeToScale a la nota de escala mas cercana, empates hacia abajo, tonica 0..11), 7 tests deterministas. Sin integrar aun en la UI ni en el flujo de notas.
+- Verificacion: build, test (54), lint y e2e ok (5, CHROMIUM_PATH del entorno; un fallo intermitente de audio.spec en una ejecucion, no reproducido en 3 mas). Sin captura nueva.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: Fase 1 "Sinte interno basico (osciladores + envolvente)".
+- Bloqueos: ninguno.
+
 ## 2026-10-27 17:00
 - Tarea: Fase 1 "Segmentacion de notas: note on/off con histeresis y umbral de nivel".
 - Hecho: src/audio/segmenter.ts (NoteSegmenter puro: umbral de entrada en dBFS con histeresis de nivel, claridad minima, tiempos de apertura/cierre, pegajosidad en semitonos y tiempo minimo de cambio), integrado en capture-processor (campo events en el mensaje), 8 tests deterministas.
