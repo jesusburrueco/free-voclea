@@ -50,6 +50,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente: Fase 1 "Detector de pitch (YIN o MPM) en el worklet".
 - Bloqueos: ninguno.
 
+## 2026-10-27 15:00
+- Tarea: Fase 1 "Pitch bend continuo con rango configurable".
+- Hecho: src/audio/bend.ts (rango 1..48, defecto 2, valor de 14 bits, mensaje 0xE0), MidiOutput.sendBend (y centrado al cortar notas), Synth.setBend via detune, UI con casilla Pitch bend y rango en semitonos; el bend se centra en cada nota nueva y al desactivarlo.
+- Verificacion: build, test (69), lint y e2e ok (9 e2e, con CHROMIUM_PATH), captura `artifacts/bend.png`.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: "Medicion de latencia extremo a extremo y visualizacion en ajustes".
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-10-27 14:00
 - Tarea: Fase 0 "Banco de pruebas: test/fixtures con audio sintetico".
 - Hecho: generadores deterministas (seno, barrido exponencial, ruido con semilla) y codec WAV en test/fixtures/signals.ts, `npm run fixtures` escribe los WAV, test que verifica generadores y que los WAV coinciden byte a byte.
