@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
 
 test('los ajustes de melodia, acordes y CC se limitan y se recuerdan', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   await page.getByLabel('Acordes', { exact: true }).check();
   await page.getByLabel('Octava de la melodia').fill('9');
   await page.getByLabel('Octava de la melodia').blur();
@@ -9,14 +11,13 @@ test('los ajustes de melodia, acordes y CC se limitan y se recuerdan', async ({ 
   await page.getByLabel('Canal MIDI de los acordes').fill('5');
   await page.getByLabel('Canal MIDI de los acordes').blur();
   await page.getByLabel('Sonido interno de los acordes').selectOption('pad');
-  await page.getByText('Tipo de acorde').click();
   await page.getByLabel('Grado V', { exact: true }).selectOption('seventh');
   await page.getByLabel('Bajo', { exact: true }).selectOption('follow');
-  await page.getByText('Control (CC)').click();
   await page.getByLabel('Volumen de la voz').check();
   await page.getByLabel('CC del volumen').fill('7');
   await page.getByLabel('CC del volumen').blur();
   await page.reload();
+  await abrirTodo(page);
   await expect(page.getByLabel('Acordes', { exact: true })).toBeChecked();
   await expect(page.getByLabel('Octava de la melodia')).toHaveValue('3');
   await expect(page.getByLabel('Canal MIDI de los acordes')).toHaveValue('5');

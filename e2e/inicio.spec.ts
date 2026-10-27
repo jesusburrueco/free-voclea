@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
 
 test('la pagina de inicio carga a 375px sin desborde horizontal', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflow).toBe(false);

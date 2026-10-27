@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
 
 test.use({
   permissions: ['microphone'],
@@ -10,6 +11,7 @@ test.use({
 
 test('los ajustes muestran la latencia estimada al activar el micro', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   const latencia = page.locator('#latencia');
   await expect(latencia).toContainText('activa el micro');
   await page.getByRole('button', { name: 'Activar micro' }).click();

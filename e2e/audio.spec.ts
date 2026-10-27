@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
 
 test.use({
   permissions: ['microphone'],
@@ -10,6 +11,7 @@ test.use({
 
 test('activar el micro arranca el worklet y mueve el medidor', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   await page.getByRole('button', { name: 'Activar micro' }).click();
   await expect(page.getByRole('status')).toHaveText('Micro activo');
   await expect(page.locator('#estado[data-activo="1"]')).toBeAttached();
@@ -23,6 +25,7 @@ test('activar el micro arranca el worklet y mueve el medidor', async ({ page }) 
 
 test('el selector de entrada lista dispositivos y el micro arranca con el elegido', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   await page.getByRole('button', { name: 'Activar micro' }).click();
   await expect(page.getByRole('status')).toHaveText('Micro activo');
   const select = page.getByLabel('Entrada de audio', { exact: true });

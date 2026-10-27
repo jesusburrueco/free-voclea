@@ -20,49 +20,42 @@ if (app) {
   app.innerHTML = `
     <main>
       <h1>Voz a MIDI</h1>
-      <p>Canta o haz beatbox y conviertelo en notas.</p>
       <p id="permiso">Para empezar necesitamos usar el micro. El audio se procesa en tu dispositivo y no se envia a ningun sitio.</p>
       <button id="mic" type="button">Activar micro</button>
-      <label for="entrada">Entrada de audio</label>
-      <select id="entrada" aria-label="Entrada de audio"><option value="">Predeterminada</option></select>
       <meter id="nivel" min="-100" max="0" value="-100" aria-label="Nivel de entrada"></meter>
-      <label class="sonido"><input id="sonido" type="checkbox" checked /> Sonido interno</label>
-      <section aria-label="Salida MIDI">
-        <button id="midi" type="button">Activar MIDI</button>
-        <label for="puerto">Puerto MIDI</label>
-        <select id="puerto" aria-label="Puerto MIDI" disabled><option value="">Sin puerto</option></select>
-        <p id="midi-estado" aria-live="polite"></p>
-      </section>
-      <section aria-label="Salida" id="salida"></section>
-      <section aria-label="Triggers" id="triggers"></section>
-      <section aria-label="Tonalidad y escala">
+      <p id="nota" aria-label="Nota detectada"></p>
+      <p id="estado" role="status"></p>
+      <section aria-label="Afinacion" id="afinacion"></section>
+      <details class="grupo" open><summary>Escala y notas</summary>
         <label for="tonica">Tonalidad</label>
         <select id="tonica" aria-label="Tonalidad">${['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((n, i) => `<option value="${i}">${n}</option>`).join('')}</select>
         <label for="escala">Escala</label>
         <select id="escala" aria-label="Escala">${SCALES.map((sc) => `<option value="${sc.id}">${sc.name}</option>`).join('')}</select>
-      </section>
-      <section aria-label="Sugerencia de tonalidad">
         <p id="sugerencia">Canta unas notas para sugerir una tonalidad.</p>
         <button id="aplicar-tonalidad" type="button" hidden>Aplicar</button>
-      </section>
-      <section aria-label="Afinacion" id="afinacion"></section>
-      <section aria-label="Notas permitidas">
         <label>Notas permitidas (toca para silenciar)</label>
         <div id="teclado"></div>
-      </section>
-      <section aria-label="Pitch bend">
+      </details>
+      <details class="grupo"><summary>Melodia y acordes</summary><div id="salida"></div></details>
+      <details class="grupo"><summary>Beatbox (triggers)</summary><div id="triggers"></div></details>
+      <details class="grupo"><summary>Pitch bend</summary>
         <label for="bend">Pitch bend a</label>
         <select id="bend" aria-label="Destino del pitch bend">${BEND_TARGETS.map((t) => `<option value="${t.id}">${t.name}</option>`).join('')}</select>
         <label for="modo-bend">Modo de bend</label>
         <select id="modo-bend" aria-label="Modo de bend">${BEND_MODES.map((m) => `<option value="${m.id}">${m.name}</option>`).join('')}</select>
         <label for="rango">Rango de bend (semitonos)</label>
         <input id="rango" type="number" inputmode="numeric" min="${BEND_RANGE_MIN}" max="${BEND_RANGE_MAX}" step="1" value="${BEND_RANGE_DEFAULT}" />
-      </section>
-      <section aria-label="Latencia">
+      </details>
+      <details class="grupo"><summary>MIDI y audio</summary>
+        <button id="midi" type="button">Activar MIDI</button>
+        <label for="puerto">Puerto MIDI</label>
+        <select id="puerto" aria-label="Puerto MIDI" disabled><option value="">Sin puerto</option></select>
+        <p id="midi-estado" aria-live="polite"></p>
+        <label for="entrada">Entrada de audio</label>
+        <select id="entrada" aria-label="Entrada de audio"><option value="">Predeterminada</option></select>
+        <label class="sonido"><input id="sonido" type="checkbox" checked /> Sonido interno</label>
         <p id="latencia" aria-live="off">Latencia: activa el micro para medirla.</p>
-      </section>
-      <p id="nota" aria-label="Nota detectada"></p>
-      <p id="estado" role="status"></p>
+      </details>
     </main>
   `;
   const button = app.querySelector<HTMLButtonElement>('#mic');

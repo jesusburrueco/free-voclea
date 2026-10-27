@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
 
 test('el teclado silencia notas y la rueda se muestra', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   const fa = page.getByRole('button', { name: 'F# permitida' });
   await fa.tap().catch(() => fa.click());
   await expect(page.getByRole('button', { name: 'F# silenciada' })).toHaveAttribute('aria-pressed', 'true');

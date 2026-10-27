@@ -165,3 +165,32 @@ select {
   width: 100%;
   min-height: 44px;
 }
+input[type='number'],
+input[type='text'] {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0 8px;
+  font: inherit;
+  color: var(--fg);
+  background: #1a1d27;
+  border: 1px solid #2a3042;
+  border-radius: 8px;
+}
+.grupo {
+  margin-top: 12px;
+  padding: 0 12px 12px;
+  border: 1px solid #2a3042;
+  border-radius: 8px;
+}
+summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  cursor: pointer;
+}
+#mic {
+  width: 100%;
+}

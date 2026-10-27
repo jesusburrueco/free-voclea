@@ -43,7 +43,7 @@ const num = (label: string, id: string, min: number, max: number): string =>
 export function mountOutputPanel(host: HTMLElement, onChange: (state: PanelState) => void): { state: () => PanelState } {
   const state = load();
   host.innerHTML = `
-    <details open><summary>Melodia y acordes</summary>
+    <details open><summary>Notas y canales</summary>
       <label class="sonido"><input id="o-melodia" type="checkbox" /> Melodia</label>
       <label class="sonido"><input id="o-acordes" type="checkbox" /> Acordes</label>
       ${num('Octava de la melodia', 'o-octava', -3, 3)}

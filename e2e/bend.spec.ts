@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
 
 test('el pitch bend se activa y el rango se limita a 1..48', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   const bend = page.getByLabel('Destino del pitch bend');
   const rango = page.getByLabel('Rango de bend (semitonos)');
   await expect(bend).toHaveValue('ninguno');
@@ -21,6 +23,7 @@ test('el pitch bend se activa y el rango se limita a 1..48', async ({ page }) =>
 
 test('se puede elegir tonalidad y escala', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   await page.getByRole('combobox', { name: 'Tonalidad' }).selectOption('2');
   await page.getByRole('combobox', { name: 'Escala' }).selectOption('minor-pentatonic');
   await expect(page.getByRole('combobox', { name: 'Escala' })).toHaveValue('minor-pentatonic');

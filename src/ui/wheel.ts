@@ -27,8 +27,8 @@ export class PitchWheel {
       this.el.append(path);
       this.sectors.push(path);
       const t = document.createElementNS(NS, 'text');
-      const [x, y] = point(pc * 30 + 13, 80).split(' ');
-      t.setAttribute('x', String(Number(x) - 2));
+      const [x, y] = point(pc * 30 - 1, 80).split(' ');
+      t.setAttribute('x', String(x));
       t.setAttribute('y', String(Number(y) + 4));
       t.setAttribute('text-anchor', 'middle');
       t.textContent = NOTE_NAMES[pc] ?? '';

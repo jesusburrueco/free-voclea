@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
 
 test.use({
   permissions: ['microphone'],
@@ -10,6 +11,7 @@ test.use({
 
 test('los sonidos de beatbox se nombran, mapean y se recuerdan', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   await page.getByLabel('Nombre del sonido 1').fill('Mi bombo');
   await page.getByLabel('Nombre del sonido 1').blur();
   await page.getByLabel('Nota MIDI del sonido 1').fill('999');
@@ -19,6 +21,7 @@ test('los sonidos de beatbox se nombran, mapean y se recuerdan', async ({ page }
   await page.getByRole('button', { name: 'Grabar sonido 1' }).click();
   await expect(page.locator('#trig-estado')).toHaveText('Activa el micro para grabar.');
   await page.reload();
+  await abrirTodo(page);
   await expect(page.getByLabel('Nombre del sonido 1')).toHaveValue('Mi bombo');
   await expect(page.getByLabel('Voz interna del sonido 2')).toHaveValue('clap');
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
@@ -28,6 +31,7 @@ test('los sonidos de beatbox se nombran, mapean y se recuerdan', async ({ page }
 
 test('con el micro falso se pueden grabar ejemplos de un sonido', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   await page.getByRole('button', { name: 'Activar micro' }).click();
   await expect(page.locator('#estado')).toHaveText('Micro activo');
   await page.getByRole('button', { name: 'Grabar sonido 3' }).click();

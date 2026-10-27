@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
 
 test.use({
   permissions: ['microphone'],
@@ -10,6 +11,7 @@ test.use({
 
 test('el sinte interno se puede silenciar y reactivar con el micro activo', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   const sonido = page.getByRole('checkbox', { name: 'Sonido interno' });
   await expect(sonido).toBeChecked();
   await page.getByRole('button', { name: 'Activar micro' }).click();

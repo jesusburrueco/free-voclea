@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
 
 test.use({
   launchOptions: {
@@ -9,6 +10,7 @@ test.use({
 
 test('permiso denegado: muestra el motivo y ofrece reintentar', async ({ page }) => {
   await page.goto('/');
+  await abrirTodo(page);
   await expect(page.locator('#permiso')).toBeVisible();
   await page.getByRole('button', { name: 'Activar micro' }).click();
   await expect(page.locator('#estado[data-error="denied"]')).toContainText('Permiso de micro denegado');
