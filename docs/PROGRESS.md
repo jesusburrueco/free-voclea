@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 12:00
+- Tarea: Fase 0 "Pipeline de audio: getUserMedia + AudioWorklet con buffer circular, medidor de nivel en UI".
+- Hecho: RingBuffer y medidor de nivel (puros, con tests), capture-processor (worklet, `?worker&url`), engine.ts, boton Activar micro y `<meter>` en UI.
+- Verificacion: build, test (13), lint y e2e ok (micro falso de Chromium), captura `artifacts/audio.png`.
+- Preview Vercel: no comprobada (red). PR #1 abierto, la vista previa seguia en construccion.
+- Siguiente: "Desbloqueo de AudioContext por gesto y pantalla de permisos de micro".
+- Bloqueos: ninguno.
+
 ## 2026-10-27 11:10
 - Tarea: Fase 0 "PWA: manifest, service worker, iconos propios".
 - Hecho: manifest, sw.js (red primero en navegacion, cache primero en estaticos), iconos propios (svg, 192, 512, maskable), registro solo en produccion, @types/node, CHROMIUM_PATH opcional en playwright.
