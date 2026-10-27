@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 11:10
+- Tarea: Fase 0 "PWA: manifest, service worker, iconos propios".
+- Hecho: manifest, sw.js (red primero en navegacion, cache primero en estaticos), iconos propios (svg, 192, 512, maskable), registro solo en produccion, @types/node, CHROMIUM_PATH opcional en playwright.
+- Verificacion: build, test (6), lint y e2e ok (e2e con CHROMIUM_PATH=/opt/pw-browsers/chromium), captura `artifacts/pwa.png`.
+- Preview Vercel: no comprobada (red). PR #1 abierto.
+- Siguiente: "Pipeline de audio: getUserMedia + AudioWorklet".
+- Bloqueos: git push a claude/dev falla con 403 (la app de GitHub de Claude no tiene acceso al repo). Commit local sin subir; hay que reconectar GitHub.
+
 ## 2026-10-27 10:50
 - Tarea: arranque. SPEC.md desde fuentes publicas, tareas nuevas en TASKS.md, scaffold de Fase 0.
 - Hecho: Vite 8.3.5, TS 6.0.3 (TS 7 no es compatible con typescript-eslint 8.72.1), ESLint 10, Vitest 5, Playwright 1.64 a 375x812.
