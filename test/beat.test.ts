@@ -61,7 +61,7 @@ describe('OnsetDetector', () => {
   it('detecta un golpe tras silencio, con poca latencia', () => {
     const hits = blocks(burst(RATE, [22050]));
     expect(hits).toHaveLength(1);
-    expect(hits[0]! - 22050).toBeLessThan(256);
+    expect((hits[0] ?? 1e9) - 22050).toBeLessThan(256);
   });
   it('no dispara con ruido estacionario ni con un seno', () => {
     expect(blocks(noise(1, 5, 0.3))).toHaveLength(0);
