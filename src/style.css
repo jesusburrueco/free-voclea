@@ -59,10 +59,24 @@
   display: none !important;
 }
 
+html,
+body {
+  height: 100%;
+}
+
+/* La pagina no hace scroll: solo lo hace <main>, asi la barra de pestanas queda siempre fija abajo. */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
 body {
   font-size: 100%;
   margin: 0;
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   color: var(--fg);
   background: radial-gradient(120% 60% at 50% -10%, var(--bg2), var(--bg) 70%);
 }
@@ -82,6 +96,8 @@ body {
 
 /* Estructura */
 .barra {
+  flex: 0 0 auto;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -100,9 +116,15 @@ h1 {
   letter-spacing: 0.01em;
 }
 main {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
   max-width: 520px;
   margin: 0 auto;
-  padding: 8px 16px calc(96px + env(safe-area-inset-bottom));
+  padding: 8px 16px 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 h2 {
   margin: 0 0 8px;

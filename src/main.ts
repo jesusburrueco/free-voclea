@@ -142,7 +142,7 @@ if (app) {
   const showTab = (id: string): void => {
     app.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => (p.hidden = p.dataset['panel'] !== id));
     app.querySelectorAll<HTMLButtonElement>('[role="tab"]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset['tab'] === id)));
-    window.scrollTo({ top: 0 });
+    app.querySelector('main')?.scrollTo({ top: 0 });
   };
   app.querySelectorAll<HTMLButtonElement>('[role="tab"]').forEach((t) => t.addEventListener('click', () => showTab(t.dataset['tab'] ?? 'tocar')));
   const button = app.querySelector<HTMLButtonElement>('#mic');

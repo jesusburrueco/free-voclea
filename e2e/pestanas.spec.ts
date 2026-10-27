@@ -23,3 +23,18 @@ test('la barra de pestanas navega entre secciones sin desbordar a 375px', async 
   await expect(page.getByRole('checkbox', { name: 'Melodia' })).toBeChecked();
   await page.screenshot({ path: 'artifacts/pestana-tocar.png', fullPage: true });
 });
+
+test('la barra de pestanas queda fija abajo aunque se haga scroll', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('tab', { name: 'Melodia' }).click();
+  const nav = page.getByRole('tablist');
+  const antes = await nav.boundingBox();
+  await page.locator('main').evaluate((m) => m.scrollTo({ top: m.scrollHeight }));
+  const scroll = await page.locator('main').evaluate((m) => m.scrollTop);
+  expect(scroll).toBeGreaterThan(0);
+  const despues = await nav.boundingBox();
+  expect(despues).toEqual(antes);
+  const viewport = page.viewportSize();
+  expect(Math.round((despues?.y ?? 0) + (despues?.height ?? 0))).toBe(viewport?.height);
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+});
