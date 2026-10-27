@@ -5,6 +5,7 @@ import { resolveDeviceId, toInputDevices } from './audio/constraints';
 import { midiToName, freqToMidi, nearestNote, NOTE_NAMES } from './notes';
 import { SCALES, getScale } from './scales';
 import { suggestKey } from './key';
+import { mountTriggers } from './ui/triggers';
 import { PitchWheel } from './ui/wheel';
 import { MuteKeyboard } from './ui/keyboard';
 import { BEND_CENTER, BEND_MODES, BEND_TARGETS, bendAffects, bendForMode, type BendMode, type BendTarget, BEND_RANGE_DEFAULT, BEND_RANGE_MAX, BEND_RANGE_MIN, bendValue, clampBendRange } from './audio/bend';
@@ -30,6 +31,7 @@ if (app) {
         <select id="puerto" aria-label="Puerto MIDI" disabled><option value="">Sin puerto</option></select>
         <p id="midi-estado" aria-live="polite"></p>
       </section>
+      <section aria-label="Triggers" id="triggers"></section>
       <section aria-label="Tonalidad y escala">
         <label for="tonica">Tonalidad</label>
         <select id="tonica" aria-label="Tonalidad">${['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((n, i) => `<option value="${i}">${n}</option>`).join('')}</select>
@@ -70,6 +72,7 @@ if (app) {
   const latencyEl = app.querySelector<HTMLParagraphElement>('#latencia');
   let engine: Engine | null = null;
   let midi: MidiOutput | null = null;
+  const triggers = mountTriggers(app.querySelector<HTMLElement>('#triggers') as HTMLElement, { engine: () => engine, midi: () => midi });
   const midiBtn = app.querySelector<HTMLButtonElement>('#midi');
   const portSel = app.querySelector<HTMLSelectElement>('#puerto');
   const midiStatus = app.querySelector<HTMLParagraphElement>('#midi-estado');
@@ -150,6 +153,7 @@ if (app) {
       return;
     }
     midi = res.midi;
+    triggers.onMidi();
     midi.onPortsChange(refreshPorts);
     refreshPorts();
     if (midiBtn) midiBtn.hidden = true;
@@ -195,6 +199,7 @@ if (app) {
       if (engine) {
         await engine.stop();
         engine = null;
+        triggers.onEngineStop();
         heldNote = null;
         midi?.allNotesOff();
         meter.value = -100;
@@ -235,7 +240,8 @@ if (app) {
           applyBend(freq ?? 0);
           status.dataset['activo'] = '1';
           delete status.dataset['error'];
-        }, select?.value || undefined);
+        }, select?.value || undefined, { onHit: triggers.onHit, onExample: triggers.onExample });
+        triggers.onEngineStart();
         engine.setSound(sound?.checked ?? true);
         applyScale();
         engine.setMuted(keyboard.muted);

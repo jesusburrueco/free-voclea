@@ -28,11 +28,11 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 ## Fase 2. Triggers (beatbox)
 - [x] Detector de onsets
 - [x] Extraccion de features (MFCC o similares) en Worker (corre en el worklet)
-- [ ] Entrenamiento por el usuario: grabar N ejemplos por slot, clasificador k-NN
-- [ ] Mapeo slot a nota MIDI y a sample interno
-- [ ] Velocidad a partir de la energia del golpe
-- [ ] Sensibilidad de triggers, canal MIDI de triggers, nombre por trigger y borrado individual
-- [ ] Kit de percusion interno sintetizado (propio)
+- [x] Entrenamiento por el usuario: grabar N ejemplos por slot, clasificador k-NN
+- [x] Mapeo slot a nota MIDI y a sample interno
+- [x] Velocidad a partir de la energia del golpe
+- [x] Sensibilidad de triggers, canal MIDI de triggers, nombre por trigger y borrado individual
+- [x] Kit de percusion interno sintetizado (propio)
 
 ## Fase 3. Acordes y control expresivo
 - [ ] Modo acordes: generar acordes diatonicos a partir de la nota cantada, voicings e inversiones

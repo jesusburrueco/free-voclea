@@ -136,3 +136,32 @@ select {
 .teclado button.suena {
   background: #4f8cff;
 }
+.slot {
+  margin: 12px 0 0;
+  padding: 8px 12px 12px;
+  border: 1px solid #2a3042;
+  border-radius: 8px;
+}
+.slot legend {
+  color: var(--muted);
+}
+.slot input,
+.slot select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 4px;
+  font: inherit;
+  color: var(--fg);
+  background: #1a1d27;
+  border: 1px solid #2a3042;
+  border-radius: 8px;
+  padding: 0 8px;
+}
+.slot button {
+  margin: 8px 8px 0 0;
+}
+#trig-sens {
+  width: 100%;
+  min-height: 44px;
+}

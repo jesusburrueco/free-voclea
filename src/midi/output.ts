@@ -38,6 +38,8 @@ export class MidiOutput {
   private selected: string | null = null;
   private sounding = new Set<number>();
   channel = 1;
+  /** Canal de los triggers de percusion (General MIDI: 10). */
+  triggerChannel = 10;
 
   constructor(private readonly access: AccessLike) {}
 
@@ -80,6 +82,16 @@ export class MidiOutput {
     if (ev.type === 'on') this.sounding.add(ev.note);
     else this.sounding.delete(ev.note);
     out.send(noteMessage(ev, this.channel));
+  }
+
+  /** Golpe de percusion: note on inmediato y note off tras `lengthMs`. */
+  sendTrigger(note: number, velocity: number, lengthMs = 60): void {
+    const out = this.current();
+    if (!out) return;
+    const v = Math.min(127, Math.max(1, Math.round(velocity)));
+    out.send(noteMessage({ type: 'on', note }, this.triggerChannel, v));
+    const port = out;
+    setTimeout(() => port.send(noteMessage({ type: 'off', note }, this.triggerChannel)), lengthMs);
   }
 
   /** Envia un valor de pitch bend de 14 bits (centro 8192). */
