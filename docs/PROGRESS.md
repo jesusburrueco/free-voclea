@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 15:00
+- Tarea: Fase 0 "Selector de dispositivo de entrada y restricciones de getUserMedia".
+- Hecho: src/audio/constraints.ts (sin AGC, supresion de ruido ni eco, mono, deviceId exact), selector en UI con lista por enumerateDevices, devicechange y recuerdo en localStorage, fallback si el dispositivo guardado desaparece.
+- Verificacion: build, test (32), lint y e2e ok (5, CHROMIUM_PATH del entorno), captura `artifacts/entrada.png`.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: Fase 1 "Detector de pitch (YIN o MPM) en el worklet".
+- Bloqueos: ninguno.
+
 ## 2026-10-27 14:00
 - Tarea: Fase 0 "Banco de pruebas: test/fixtures con audio sintetico".
 - Hecho: generadores deterministas (seno, barrido exponencial, ruido con semilla) y codec WAV en test/fixtures/signals.ts, `npm run fixtures` escribe los WAV, test que verifica generadores y que los WAV coinciden byte a byte.
