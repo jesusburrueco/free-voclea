@@ -1,4 +1,5 @@
 import workletUrl from './capture-processor.ts?worker&url';
+import { buildAudioConstraints } from './constraints';
 import type { Level } from './level';
 
 export interface Engine {
@@ -6,13 +7,13 @@ export interface Engine {
 }
 
 /** Abre el micro y conecta el worklet de captura. Debe llamarse desde un gesto del usuario. */
-export async function startEngine(onLevel: (level: Level) => void): Promise<Engine> {
+export async function startEngine(onLevel: (level: Level) => void, deviceId?: string): Promise<Engine> {
   // iOS: el contexto debe crearse y reanudarse dentro del gesto, antes de cualquier await.
   const ctx = new AudioContext({ latencyHint: 'interactive' });
   const resumed = ctx.resume();
   let stream: MediaStream;
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream = await navigator.mediaDevices.getUserMedia(buildAudioConstraints(deviceId));
   } catch (err) {
     await ctx.close();
     throw err;

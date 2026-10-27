@@ -9,7 +9,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Pipeline de audio: getUserMedia + AudioWorklet con buffer circular, medidor de nivel en UI
 - [x] Desbloqueo de AudioContext por gesto (requisito iOS) y pantalla de permisos de micro
 - [x] Banco de pruebas: carpeta `test/fixtures` con audio sintetico generado por script (senos, barridos, ruido) para tests deterministas
-- [ ] Selector de dispositivo de entrada y restricciones de getUserMedia (sin AGC, sin supresion de ruido, sin cancelacion de eco)
+- [x] Selector de dispositivo de entrada y restricciones de getUserMedia (sin AGC, sin supresion de ruido, sin cancelacion de eco)
 
 ## Fase 1. Pitch a notas
 - [ ] Detector de pitch (YIN o MPM) en el worklet, con test contra fixtures (error < 10 cents en senos)

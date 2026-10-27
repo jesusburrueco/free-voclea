@@ -48,3 +48,21 @@ meter {
   height: 24px;
   margin-top: 16px;
 }
+
+label {
+  display: block;
+  margin-top: 16px;
+  color: var(--muted);
+}
+
+select {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0 12px;
+  font: inherit;
+  color: var(--fg);
+  background: #2a3042;
+  border: 0;
+  border-radius: 8px;
+}
