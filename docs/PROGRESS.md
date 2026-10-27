@@ -42,6 +42,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente: Fase 1 "Segmentacion de notas: note on/off con histeresis y umbral de nivel".
 - Bloqueos: ninguno.
 
+## 2026-10-27 16:00
+- Tarea: Fase 1 "Medicion de latencia extremo a extremo y visualizacion en ajustes".
+- Hecho: src/audio/latency.ts (estimacion entrada + analisis + informe + salida desde baseLatency, outputLatency y settings.latency; constantes del worklet compartidas), Engine.latency(), linea "Latencia estimada" en la UI al activar el micro.
+- Verificacion: build, test (73), lint ok; e2e 10 ok en una pasada, captura `artifacts/latencia.png`. e2e/audio.spec (medidor) es intermitente: falla 1 de cada ~3 pasadas completas tambien sin estos cambios, pasa aislado. Es una estimacion con valores del navegador, no una medicion con bucle de audio.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: "Modos de pitch bend anclado y fiel".
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-10-27 15:00
 - Tarea: Fase 0 "Selector de dispositivo de entrada y restricciones de getUserMedia".
 - Hecho: src/audio/constraints.ts (sin AGC, supresion de ruido ni eco, mono, deviceId exact), selector en UI con lista por enumerateDevices, devicechange y recuerdo en localStorage, fallback si el dispositivo guardado desaparece.
