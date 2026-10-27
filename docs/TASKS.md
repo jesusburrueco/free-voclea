@@ -44,9 +44,9 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Presets de sinte internos propios para melodia y acordes
 
 ## Fase 4. Configuracion y perfiles
-- [ ] Perfiles guardados (IndexedDB), exportar/importar JSON
-- [ ] Calibracion guiada del micro y del rango vocal
-- [ ] Todas las opciones de SPEC.md accesibles desde UI movil
+- [x] Perfiles guardados (IndexedDB), exportar/importar JSON
+- [x] Calibracion guiada del micro y del rango vocal
+- [x] Todas las opciones de SPEC.md accesibles desde UI movil
 
 ## Fase 5. Pulido
 - [ ] Auditoria de rendimiento en gama media Android (CPU del worklet < 30%)

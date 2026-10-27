@@ -23,6 +23,12 @@ export interface Engine {
   /** Sensibilidad 0..1 del detector de golpes. */
   setSensitivity(value: number): void;
   setTriggersEnabled(on: boolean): void;
+  /** Umbral de entrada para abrir una nota, en dBFS. */
+  setThreshold(db: number): void;
+  /** Pegajosidad de la nota, 0..1. */
+  setStickiness(value: number): void;
+  /** Ganancia de entrada en dB. */
+  setInputGain(db: number): void;
   /** Voz del kit interno para un slot. */
   setVoices(voices: readonly string[]): void;
   /** Activa o silencia el sinte interno. */
@@ -91,7 +97,8 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
       e.data.out = out;
       onLevel(e.data);
     };
-    source.connect(node);
+    const inputGain = ctx.createGain();
+    source.connect(inputGain).connect(node);
     return {
       setExamples(examples) {
         node.port.postMessage({ type: 'examples', examples });
@@ -105,6 +112,15 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
       setTriggersEnabled(on) {
         triggersOn = on;
         node.port.postMessage({ type: 'enabled', value: on });
+      },
+      setStickiness(value) {
+        node.port.postMessage({ type: 'stickiness', value });
+      },
+      setInputGain(db) {
+        inputGain.gain.value = 10 ** (db / 20);
+      },
+      setThreshold(db) {
+        node.port.postMessage({ type: 'threshold', db });
       },
       setVoices(v) {
         voices = v;

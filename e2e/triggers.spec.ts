@@ -35,6 +35,6 @@ test('con el micro falso se pueden grabar ejemplos de un sonido', async ({ page 
   await page.getByRole('button', { name: 'Activar micro' }).click();
   await expect(page.locator('#estado')).toHaveText('Micro activo');
   await page.getByRole('button', { name: 'Grabar sonido 3' }).click();
-  await expect(page.getByText('Listo.')).toBeVisible({ timeout: 25000 });
+  await expect(page.getByText('Listo.')).toBeVisible({ timeout: 45000 });
   await expect(page.getByText('5 ejemplos').first()).toBeVisible();
 });

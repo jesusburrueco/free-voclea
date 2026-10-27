@@ -27,6 +27,9 @@ describe('acordes diatonicos', () => {
     expect(buildChord(60, 0, 'major', opts({ bass: 'follow' }))).toEqual([48, 60, 64, 67]);
     expect(buildChord(62, 0, 'major', opts({ bass: 'fixed' }))).toEqual([38, 62, 65, 69]);
   });
+  it('bajo varias octavas por debajo', () => {
+    expect(buildChord(60, 0, 'major', opts({ bass: 'follow', bassOctaves: 3 }))[0]).toBe(24);
+  });
   it('escalas no heptatonicas usan la mayor', () => {
     expect(chordScale('blues').id).toBe('major');
     expect(buildChord(60, 0, 'chromatic')).toEqual([60, 64, 67]);

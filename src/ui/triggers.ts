@@ -3,6 +3,7 @@ import type { Engine } from '../audio/engine';
 import type { MidiOutput } from '../midi/output';
 import {
   EXAMPLES_PER_TRAINING,
+  FIXED_VELOCITY,
   MAX_NAME_LENGTH,
   addExample,
   clampChannel,
@@ -48,7 +49,7 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
     const e = deps.engine();
     if (!e) return;
     e.setExamples(toExamples(state.slots));
-    e.setVoices(state.slots.map((s) => s.voice));
+    e.setVoices(state.slots.map((s) => (s.dest === 'midi' ? '' : s.voice)));
     e.setSensitivity(state.settings.sensitivity);
     e.setTriggersEnabled(state.settings.enabled);
     e.arm(armed);
@@ -105,6 +106,8 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
         <label>Nombre <input data-f="name" type="text" maxlength="${MAX_NAME_LENGTH}" aria-label="Nombre del sonido ${i + 1}" /></label>
         <label>Nota MIDI <input data-f="note" type="number" inputmode="numeric" min="0" max="127" aria-label="Nota MIDI del sonido ${i + 1}" /></label>
         <label>Voz interna <select data-f="voice" aria-label="Voz interna del sonido ${i + 1}">${DRUM_VOICES.map((v) => `<option value="${v.id}">${v.name}</option>`).join('')}</select></label>
+        <label>Destino <select data-f="dest" aria-label="Destino del sonido ${i + 1}"><option value="ambos">MIDI e interno</option><option value="midi">Solo MIDI</option><option value="interno">Solo interno</option></select></label>
+        <label class="sonido"><input data-f="vel" type="checkbox" aria-label="Velocidad segun la fuerza del sonido ${i + 1}" /> Velocidad segun la fuerza</label>
         <p data-f="count">${slot.examples.length} ejemplos</p>
         <button type="button" data-f="rec" aria-label="Grabar sonido ${i + 1}">${armed === i ? `Grabando ${collected}/${EXAMPLES_PER_TRAINING}` : 'Grabar'}</button>
         <button type="button" data-f="del" aria-label="Borrar sonido ${i + 1}">Borrar</button>`;
@@ -115,6 +118,19 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
       name.value = slot.name;
       note.value = String(slot.note);
       voice.value = slot.voice;
+      const dest = f<HTMLSelectElement>('dest');
+      const vel = f<HTMLInputElement>('vel');
+      dest.value = slot.dest;
+      vel.checked = slot.velocity;
+      dest.addEventListener('change', () => {
+        slot.dest = dest.value as Slot['dest'];
+        save();
+        syncEngine();
+      });
+      vel.addEventListener('change', () => {
+        slot.velocity = vel.checked;
+        save();
+      });
       name.addEventListener('change', () => {
         slot.name = name.value.trim().slice(0, MAX_NAME_LENGTH) || slot.name;
         name.value = slot.name;
@@ -171,7 +187,7 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
     onHit(slot: number, velocity: number): void {
       const s = state.slots[slot];
       if (!s) return;
-      deps.midi()?.sendTrigger(s.note, velocity);
+      if (s.dest !== 'interno') deps.midi()?.sendTrigger(s.note, s.velocity ? velocity : FIXED_VELOCITY);
       status.textContent = `${s.name} (${velocity})`;
     },
     onExample(slot: number, vec: number[]): void {

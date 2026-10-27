@@ -34,6 +34,16 @@ export class MuteKeyboard {
     }
   }
 
+  /** Restaura un conjunto de notas silenciadas sin avisar al exterior. */
+  setMuted(pcs: Iterable<number>): void {
+    this.muted.clear();
+    for (const pc of pcs) this.muted.add(pc);
+    this.keys.forEach((key, pc) => {
+      key.setAttribute('aria-pressed', String(this.muted.has(pc)));
+      key.setAttribute('aria-label', `${NOTE_NAMES[pc]} ${this.muted.has(pc) ? 'silenciada' : 'permitida'}`);
+    });
+  }
+
   toggle(pc: number): void {
     if (this.muted.has(pc)) this.muted.delete(pc);
     else this.muted.add(pc);

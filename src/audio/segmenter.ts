@@ -38,7 +38,7 @@ export type NoteEvent = { type: 'on'; note: number } | { type: 'off'; note: numb
 
 /** Convierte tramas de nivel y pitch en eventos note on/off, con histeresis de nivel y de altura. */
 export class NoteSegmenter {
-  private readonly opts: SegmenterOptions;
+  private opts: SegmenterOptions;
   private current: number | null = null;
   private candidate: number | null = null;
   private candidateMs = 0;
@@ -46,6 +46,10 @@ export class NoteSegmenter {
 
   constructor(opts: Partial<SegmenterOptions> = {}) {
     this.opts = { ...defaultSegmenterOptions, ...opts };
+  }
+
+  setOptions(opts: Partial<SegmenterOptions>): void {
+    this.opts = { ...this.opts, ...opts };
   }
 
   get activeNote(): number | null {

@@ -5,12 +5,19 @@ export const EXAMPLES_PER_TRAINING = 5;
 export const MAX_EXAMPLES_PER_SLOT = 20;
 export const MAX_NAME_LENGTH = 24;
 
+export type SlotDest = 'ambos' | 'midi' | 'interno';
+export const FIXED_VELOCITY = 100;
+
 export interface Slot {
   name: string;
   /** Nota MIDI que se envia al disparar. */
   note: number;
   /** Id de voz del kit interno. */
   voice: string;
+  /** Destino del golpe: MIDI, sonido interno o ambos. */
+  dest: SlotDest;
+  /** Si es false se envia siempre velocidad fija. */
+  velocity: boolean;
   examples: number[][];
 }
 
@@ -26,10 +33,10 @@ export const defaultSettings: TriggerSettings = { enabled: true, sensitivity: 0.
 
 export function defaultSlots(): Slot[] {
   return [
-    { name: 'Bombo', note: 36, voice: 'kick', examples: [] },
-    { name: 'Caja', note: 38, voice: 'snare', examples: [] },
-    { name: 'Charles', note: 42, voice: 'hat', examples: [] },
-    { name: 'Tom', note: 45, voice: 'tom', examples: [] },
+    { name: 'Bombo', note: 36, voice: 'kick', dest: 'ambos', velocity: true, examples: [] },
+    { name: 'Caja', note: 38, voice: 'snare', dest: 'ambos', velocity: true, examples: [] },
+    { name: 'Charles', note: 42, voice: 'hat', dest: 'ambos', velocity: true, examples: [] },
+    { name: 'Tom', note: 45, voice: 'tom', dest: 'ambos', velocity: true, examples: [] },
   ];
 }
 
@@ -58,7 +65,8 @@ export function sanitizeSlots(raw: unknown, voices: readonly string[]): Slot[] {
           .filter((v): v is number[] => Array.isArray(v) && v.length === FEATURE_DIM && v.every((x) => typeof x === 'number' && Number.isFinite(x)))
           .slice(-MAX_EXAMPLES_PER_SLOT)
       : [];
-    return { name, note: clampNote(r['note'], def.note), voice, examples };
+    const dest = r['dest'] === 'midi' || r['dest'] === 'interno' ? r['dest'] : 'ambos';
+    return { name, note: clampNote(r['note'], def.note), voice, dest, velocity: r['velocity'] !== false, examples };
   });
 }
 

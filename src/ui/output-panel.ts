@@ -40,7 +40,7 @@ const num = (label: string, id: string, min: number, max: number): string =>
   `<label for="${id}">${label}</label><input id="${id}" type="number" inputmode="numeric" min="${min}" max="${max}" step="1" />`;
 
 /** Panel de melodia, acordes, rango, canales, presets y CC. Devuelve el estado vivo y avisa de cada cambio. */
-export function mountOutputPanel(host: HTMLElement, onChange: (state: PanelState) => void): { state: () => PanelState } {
+export function mountOutputPanel(host: HTMLElement, onChange: (state: PanelState) => void): { state: () => PanelState; setRange(low: number, high: number): void } {
   const state = load();
   host.innerHTML = `
     <details open><summary>Notas y canales</summary>
@@ -65,6 +65,7 @@ export function mountOutputPanel(host: HTMLElement, onChange: (state: PanelState
       <select id="o-ap"><option value="close">Cerrada</option><option value="open">Abierta</option></select>
       <label for="o-bajo">Bajo</label>
       <select id="o-bajo"><option value="off">Sin bajo</option><option value="follow">Una octava bajo la raiz</option><option value="fixed">Octava fija</option></select>
+      ${num('Octavas del bajo bajo la raiz', 'o-bajo-oct', 1, 4)}
       ${DEGREES.map((d, i) => `<label for="o-grado-${i}">Grado ${d}</label><select id="o-grado-${i}">${variantOptions}</select>`).join('')}
     </details>
     <details><summary>Control (CC)</summary>
@@ -94,6 +95,7 @@ export function mountOutputPanel(host: HTMLElement, onChange: (state: PanelState
     el<HTMLSelectElement>('o-inv').value = String(o.chord.inversion);
     el<HTMLSelectElement>('o-ap').value = o.chord.voicing;
     el<HTMLSelectElement>('o-bajo').value = o.chord.bass;
+    el<HTMLInputElement>('o-bajo-oct').value = String(o.chord.bassOctaves);
     o.chord.variants.forEach((v, i) => (el<HTMLSelectElement>(`o-grado-${i}`).value = v));
     const c = state.cc;
     el<HTMLInputElement>('cc-env-on').checked = c.envelope.on;
@@ -119,6 +121,7 @@ export function mountOutputPanel(host: HTMLElement, onChange: (state: PanelState
         inversion: Number(el<HTMLSelectElement>('o-inv').value) as 0 | 1 | 2,
         voicing: el<HTMLSelectElement>('o-ap').value as 'close' | 'open',
         bass: el<HTMLSelectElement>('o-bajo').value as 'off' | 'follow' | 'fixed',
+        bassOctaves: n('o-bajo-oct'),
         variants: DEGREES.map((_, i) => el<HTMLSelectElement>(`o-grado-${i}`).value as ChordVariant),
       },
     });
@@ -138,5 +141,12 @@ export function mountOutputPanel(host: HTMLElement, onChange: (state: PanelState
 
   write();
   host.addEventListener('change', read);
-  return { state: () => state };
+  return {
+    state: () => state,
+    setRange(low, high) {
+      el<HTMLInputElement>('o-min').value = String(low);
+      el<HTMLInputElement>('o-max').value = String(high);
+      read();
+    },
+  };
 }

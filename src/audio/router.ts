@@ -65,6 +65,7 @@ export function sanitizeOutputSettings(raw: Partial<OutputSettings> | null | und
       inversion: c.inversion === 1 || c.inversion === 2 ? c.inversion : 0,
       voicing: c.voicing === 'open' ? 'open' : 'close',
       bass: c.bass === 'follow' || c.bass === 'fixed' ? c.bass : 'off',
+      bassOctaves: clamp(c.bassOctaves ?? 1, 1, 4),
     },
   };
 }

@@ -5,6 +5,8 @@ import { resolveDeviceId, toInputDevices } from './audio/constraints';
 import { midiToName, freqToMidi, nearestNote, NOTE_NAMES } from './notes';
 import { SCALES, getScale } from './scales';
 import { suggestKey } from './key';
+import { loadSettings, saveSettings, type AppSettings } from './settings';
+import { mountSetup } from './ui/setup';
 import { mountTriggers } from './ui/triggers';
 import { mountOutputPanel, type PanelState } from './ui/output-panel';
 import { CcMapper } from './audio/cc';
@@ -46,6 +48,7 @@ if (app) {
         <label for="rango">Rango de bend (semitonos)</label>
         <input id="rango" type="number" inputmode="numeric" min="${BEND_RANGE_MIN}" max="${BEND_RANGE_MAX}" step="1" value="${BEND_RANGE_DEFAULT}" />
       </details>
+      <details class="grupo"><summary>Calibracion y perfiles</summary><div id="ajustes"></div></details>
       <details class="grupo"><summary>MIDI y audio</summary>
         <button id="midi" type="button">Activar MIDI</button>
         <label for="puerto">Puerto MIDI</label>
@@ -54,6 +57,12 @@ if (app) {
         <label for="entrada">Entrada de audio</label>
         <select id="entrada" aria-label="Entrada de audio"><option value="">Predeterminada</option></select>
         <label class="sonido"><input id="sonido" type="checkbox" checked /> Sonido interno</label>
+        <label for="ganancia">Nivel de entrada (dB)</label>
+        <input id="ganancia" type="range" min="-12" max="24" step="1" aria-label="Nivel de entrada en dB" />
+        <label for="pegajosidad">Pegajosidad de la nota</label>
+        <input id="pegajosidad" type="range" min="0" max="1" step="0.05" aria-label="Pegajosidad de la nota" />
+        <label for="escala-ui">Tamano de la interfaz</label>
+        <select id="escala-ui" aria-label="Tamano de la interfaz">${[100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200].map((v) => `<option value="${v}">${v} %</option>`).join('')}</select>
         <p id="latencia" aria-live="off">Latencia: activa el micro para medirla.</p>
       </details>
     </main>
@@ -77,11 +86,34 @@ if (app) {
   };
   const panel = mountOutputPanel(app.querySelector<HTMLElement>('#salida') as HTMLElement, applyPanel);
   cc.setConfig(panel.state().cc);
+  const setup = mountSetup(app.querySelector<HTMLElement>('#ajustes') as HTMLElement, {
+    active: () => engine !== null,
+    onCalibrated: (r) => {
+      settings = { ...settings, thresholdDb: r.thresholdDb };
+      saveSettings(settings);
+      engine?.setThreshold(r.thresholdDb);
+      if (r.range) panel.setRange(r.range.low, r.range.high);
+    },
+  });
   const triggers = mountTriggers(app.querySelector<HTMLElement>('#triggers') as HTMLElement, { engine: () => engine, midi: () => midi });
   const midiBtn = app.querySelector<HTMLButtonElement>('#midi');
   const portSel = app.querySelector<HTMLSelectElement>('#puerto');
   const midiStatus = app.querySelector<HTMLParagraphElement>('#midi-estado');
 
+  let settings: AppSettings = loadSettings();
+  const persist = (): void => {
+    settings = {
+      ...settings,
+      tonic: Number(tonicSel?.value ?? 0),
+      scaleId: scaleSel?.value ?? 'chromatic',
+      muted: [...keyboard.muted],
+      bendTarget: (bendSel?.value ?? 'ninguno') as BendTarget,
+      bendMode: (bendModeSel?.value ?? 'fiel') as BendMode,
+      bendRange: bendRange(),
+      sound: sound?.checked ?? true,
+    };
+    saveSettings(settings);
+  };
   const bendSel = app.querySelector<HTMLSelectElement>('#bend');
   const bendModeSel = app.querySelector<HTMLSelectElement>('#modo-bend');
   const tonicSel = app.querySelector<HTMLSelectElement>('#tonica');
@@ -92,7 +124,10 @@ if (app) {
   let anchor: number | null = null;
   const wheel = new PitchWheel();
   app.querySelector('#afinacion')?.append(wheel.el);
-  const keyboard = new MuteKeyboard((muted) => engine?.setMuted(muted));
+  const keyboard = new MuteKeyboard((muted) => {
+    engine?.setMuted(muted);
+    persist();
+  });
   app.querySelector('#teclado')?.append(keyboard.el);
   const keyWeights = new Array<number>(12).fill(0);
   let keyNotes = 0;
@@ -105,6 +140,7 @@ if (app) {
     scaleSel.value = suggested.scaleId;
     applyScale();
     refreshWheelScale();
+    persist();
   });
   let inScale: ReadonlySet<number> = new Set(Array.from({ length: 12 }, (_, i) => i));
   const refreshWheelScale = (): void => {
@@ -141,6 +177,38 @@ if (app) {
   });
   bendSel?.addEventListener('change', resetBend);
   bendModeSel?.addEventListener('change', resetBend);
+  if (tonicSel) tonicSel.value = String(settings.tonic);
+  if (scaleSel) scaleSel.value = settings.scaleId;
+  if (bendSel) bendSel.value = settings.bendTarget;
+  if (bendModeSel) bendModeSel.value = settings.bendMode;
+  if (rangeIn) rangeIn.value = String(settings.bendRange);
+  if (sound) sound.checked = settings.sound;
+  keyboard.setMuted(settings.muted);
+  const gainIn = app.querySelector<HTMLInputElement>('#ganancia');
+  const stickIn = app.querySelector<HTMLInputElement>('#pegajosidad');
+  const uiSel = app.querySelector<HTMLSelectElement>('#escala-ui');
+  if (gainIn) gainIn.value = String(settings.inputGainDb);
+  if (stickIn) stickIn.value = String(settings.stickiness);
+  if (uiSel) uiSel.value = String(settings.uiScale);
+  const applyUiScale = (): void => {
+    document.body.style.fontSize = `${settings.uiScale}%`;
+  };
+  applyUiScale();
+  const commitTuning = (): void => {
+    settings = {
+      ...settings,
+      inputGainDb: Number(gainIn?.value ?? 0),
+      stickiness: Number(stickIn?.value ?? 0.25),
+      uiScale: Number(uiSel?.value ?? 100),
+    };
+    saveSettings(settings);
+    engine?.setInputGain(settings.inputGainDb);
+    engine?.setStickiness(settings.stickiness);
+    applyUiScale();
+  };
+  for (const input of [gainIn, stickIn, uiSel]) input?.addEventListener('change', commitTuning);
+  refreshWheelScale();
+  for (const input of [tonicSel, scaleSel, bendSel, bendModeSel, rangeIn, sound]) input?.addEventListener('change', persist);
 
   const refreshPorts = (): void => {
     if (!midi || !portSel || !midiStatus) return;
@@ -220,8 +288,9 @@ if (app) {
         hint.hidden = false;
       } else {
         const { startEngine } = await import('./audio/engine');
-        engine = await startEngine(({ rms, freq, events, out, centroid }) => {
+        engine = await startEngine(({ rms, freq, clarity, events, out, centroid }) => {
           meter.value = toDb(rms);
+          setup.feed({ db: toDb(rms), freq: freq ?? 0, clarity: clarity ?? 0 });
           if (freq && freq > 0) {
             const near = nearestNote(freq);
             wheel.update(((near.note % 12) + 12) % 12, near.cents, inScale);
@@ -258,6 +327,9 @@ if (app) {
         applyScale();
         applyPanel(panel.state());
         engine.setMuted(keyboard.muted);
+        if (settings.thresholdDb !== null) engine.setThreshold(settings.thresholdDb);
+        engine.setInputGain(settings.inputGainDb);
+        engine.setStickiness(settings.stickiness);
         void refreshDevices();
         if (latencyEl) latencyEl.textContent = formatLatency(engine.latency());
         button.textContent = 'Detener';

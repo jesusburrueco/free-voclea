@@ -19,6 +19,8 @@ export interface ChordOptions {
   voicing: Voicing;
   /** 'off' sin bajo, 'follow' una octava bajo la raiz, 'fixed' en la octava 2 (36..47). */
   bass: 'off' | 'follow' | 'fixed';
+  /** Octavas por debajo de la raiz cuando el bajo sigue la octava (1..4). */
+  bassOctaves: number;
 }
 
 export const defaultChordOptions: ChordOptions = {
@@ -26,6 +28,7 @@ export const defaultChordOptions: ChordOptions = {
   inversion: 0,
   voicing: 'close',
   bass: 'off',
+  bassOctaves: 1,
 };
 
 /** Escala heptatonica usada para armar acordes: la elegida si tiene 7 notas, o Mayor en otro caso. */
@@ -81,7 +84,7 @@ export function buildChord(note: number, tonic: number, scaleId: string, opts: C
     const mid = notes.splice(1, 1)[0];
     if (mid !== undefined) notes.push(mid + 12);
   }
-  if (opts.bass === 'follow') notes.unshift(root - 12);
+  if (opts.bass === 'follow') notes.unshift(root - 12 * Math.min(4, Math.max(1, Math.round(opts.bassOctaves || 1))));
   else if (opts.bass === 'fixed') notes.unshift(36 + (((root % 12) + 12) % 12));
   notes = [...new Set(notes)].sort((a, b) => a - b);
   return notes;
