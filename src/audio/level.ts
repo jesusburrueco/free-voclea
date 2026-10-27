@@ -1,9 +1,13 @@
+import type { NoteEvent } from './segmenter';
+
 export interface Level {
   rms: number;
   peak: number;
   /** Pitch en Hz (0 si no hay tono); solo lo rellena el worklet. */
   freq?: number;
   clarity?: number;
+  /** Eventos note on/off de la trama; solo lo rellena el worklet. */
+  events?: NoteEvent[];
 }
 
 export function measureLevel(samples: Float32Array): Level {
