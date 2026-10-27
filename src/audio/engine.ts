@@ -1,6 +1,7 @@
 import workletUrl from './capture-processor.ts?worker&url';
 import { buildAudioConstraints } from './constraints';
 import type { Level } from './level';
+import { ANALYSIS_WINDOW, REPORT_RATE, estimateLatency, type LatencyReport } from './latency';
 import { Synth } from './synth';
 
 export interface Engine {
@@ -8,6 +9,8 @@ export interface Engine {
   setSound(on: boolean): void;
   /** Desviacion de la voz respecto a la nota viva, en semitonos (0 para quitarla). */
   setBend(semitones: number): void;
+  /** Estimacion actual de latencia extremo a extremo. */
+  latency(): LatencyReport;
   stop(): Promise<void>;
 }
 
@@ -39,6 +42,18 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
     };
     source.connect(node);
     return {
+      latency() {
+        const track = stream.getAudioTracks()[0];
+        const settings = track?.getSettings() as MediaTrackSettings & { latency?: number };
+        return estimateLatency({
+          baseLatency: ctx.baseLatency,
+          outputLatency: ctx.outputLatency,
+          inputLatency: settings?.latency ?? 0,
+          sampleRate: ctx.sampleRate,
+          windowFrames: ANALYSIS_WINDOW,
+          reportHz: REPORT_RATE,
+        });
+      },
       setSound(on) {
         sound = on;
         if (!on) synth.noteOff();

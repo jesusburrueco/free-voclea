@@ -2,6 +2,7 @@ import { RingBuffer } from './ring-buffer';
 import { measureLevel } from './level';
 import { detectPitch, minWindow } from './pitch';
 import { NoteSegmenter } from './segmenter';
+import { ANALYSIS_WINDOW, REPORT_RATE } from './latency';
 
 declare class AudioWorkletProcessor {
   readonly port: MessagePort;
@@ -10,8 +11,8 @@ declare class AudioWorkletProcessor {
 declare function registerProcessor(name: string, ctor: new () => AudioWorkletProcessor): void;
 declare const sampleRate: number;
 
-const WINDOW = 2048;
-const REPORT_HZ = 30;
+const WINDOW = ANALYSIS_WINDOW;
+const REPORT_HZ = REPORT_RATE;
 
 class CaptureProcessor extends AudioWorkletProcessor {
   private readonly ring = new RingBuffer(sampleRate * 2);

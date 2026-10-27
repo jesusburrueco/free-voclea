@@ -4,6 +4,7 @@ import { classifyMicError, isMicSupported, MIC_ERROR_MESSAGES } from './audio/mi
 import { resolveDeviceId, toInputDevices } from './audio/constraints';
 import { midiToName, freqToMidi } from './notes';
 import { BEND_CENTER, BEND_RANGE_DEFAULT, BEND_RANGE_MAX, BEND_RANGE_MIN, bendSemitones, bendValue, clampBendRange } from './audio/bend';
+import { formatLatency } from './audio/latency';
 import { isMidiSupported, MidiOutput } from './midi/output';
 import type { Engine } from './audio/engine';
 
@@ -30,6 +31,9 @@ if (app) {
         <label for="rango">Rango de bend (semitonos)</label>
         <input id="rango" type="number" inputmode="numeric" min="${BEND_RANGE_MIN}" max="${BEND_RANGE_MAX}" step="1" value="${BEND_RANGE_DEFAULT}" />
       </section>
+      <section aria-label="Latencia">
+        <p id="latencia" aria-live="off">Latencia: activa el micro para medirla.</p>
+      </section>
       <p id="nota" aria-label="Nota detectada"></p>
       <p id="estado" role="status"></p>
     </main>
@@ -41,6 +45,7 @@ if (app) {
   const select = app.querySelector<HTMLSelectElement>('#entrada');
   const sound = app.querySelector<HTMLInputElement>('#sonido');
   const noteEl = app.querySelector<HTMLParagraphElement>('#nota');
+  const latencyEl = app.querySelector<HTMLParagraphElement>('#latencia');
   let engine: Engine | null = null;
   let midi: MidiOutput | null = null;
   const midiBtn = app.querySelector<HTMLButtonElement>('#midi');
@@ -139,6 +144,7 @@ if (app) {
         midi?.allNotesOff();
         meter.value = -100;
         button.textContent = 'Activar micro';
+        if (latencyEl) latencyEl.textContent = 'Latencia: activa el micro para medirla.';
         status.textContent = '';
         hint.hidden = false;
       } else {
@@ -159,6 +165,7 @@ if (app) {
         }, select?.value || undefined);
         engine.setSound(sound?.checked ?? true);
         void refreshDevices();
+        if (latencyEl) latencyEl.textContent = formatLatency(engine.latency());
         button.textContent = 'Detener';
         status.textContent = 'Micro activo';
         hint.hidden = true;
