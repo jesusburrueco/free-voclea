@@ -16,7 +16,7 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Verificacion: build, test (6), lint y e2e ok (e2e con CHROMIUM_PATH=/opt/pw-browsers/chromium), captura `artifacts/pwa.png`.
 - Preview Vercel: no comprobada (red). PR #1 abierto.
 - Siguiente: "Pipeline de audio: getUserMedia + AudioWorklet".
-- Bloqueos: git push a claude/dev falla con 403 (la app de GitHub de Claude no tiene acceso al repo). Commit local sin subir; hay que reconectar GitHub.
+- Bloqueos: ninguno. El push dio 403 hasta que se dio acceso a la app de GitHub; resuelto y subido a claude/dev.
 
 ## 2026-10-27 10:50
 - Tarea: arranque. SPEC.md desde fuentes publicas, tareas nuevas en TASKS.md, scaffold de Fase 0.
