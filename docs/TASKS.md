@@ -26,8 +26,8 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Sugerencia de tonalidad a partir de notas cantadas
 
 ## Fase 2. Triggers (beatbox)
-- [ ] Detector de onsets
-- [ ] Extraccion de features (MFCC o similares) en Worker
+- [x] Detector de onsets
+- [x] Extraccion de features (MFCC o similares) en Worker (corre en el worklet)
 - [ ] Entrenamiento por el usuario: grabar N ejemplos por slot, clasificador k-NN
 - [ ] Mapeo slot a nota MIDI y a sample interno
 - [ ] Velocidad a partir de la energia del golpe
