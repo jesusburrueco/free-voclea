@@ -58,6 +58,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente: "Selector de dispositivo de entrada y restricciones de getUserMedia".
 - Bloqueos: ninguno.
 
+## 2026-10-27 14:00
+- Tarea: Fase 1 "Salida Web MIDI con deteccion de soporte y selector de puerto".
+- Hecho: src/midi/output.ts (mensajes note on/off, MidiOutput con puertos, seleccion, corte de notas al cambiar de puerto o parar, aviso si el puerto desaparece), seccion MIDI en UI (boton Activar MIDI por gesto, selector de puerto, mensajes si no hay soporte o se deniega el permiso; sin soporte la app sigue con sonido interno).
+- Verificacion: build, test, lint y e2e ok (8 e2e, con CHROMIUM_PATH=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome), captura `artifacts/midi.png`.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: "Pitch bend continuo con rango configurable".
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada (la sesion tenia asignada otra rama).
+
 ## 2026-10-27 13:00
 - Tarea: Fase 0 "Desbloqueo de AudioContext por gesto y pantalla de permisos de micro".
 - Hecho: AudioContext creado y reanudado antes de cualquier await (iOS), mic-error.ts (clasifica errores y mensajes), texto de permiso en UI, boton Reintentar, deteccion de navegador sin soporte.
