@@ -5,7 +5,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 
 ## Fase 0. Base
 - [x] Scaffold Vite + TS estricto, ESLint, Vitest, Playwright (viewport 375x812), scripts del CLAUDE.md
-- [ ] PWA: manifest, service worker, iconos propios
+- [x] PWA: manifest, service worker, iconos propios
 - [ ] Pipeline de audio: getUserMedia + AudioWorklet con buffer circular, medidor de nivel en UI
 - [ ] Desbloqueo de AudioContext por gesto (requisito iOS) y pantalla de permisos de micro
 - [ ] Banco de pruebas: carpeta `test/fixtures` con audio sintetico generado por script (senos, barridos, ruido) para tests deterministas

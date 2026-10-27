@@ -9,3 +9,7 @@ if (app) {
     </main>
   `;
 }
+
+if (import.meta.env.PROD) {
+  void import('./pwa').then((m) => m.registerServiceWorker());
+}

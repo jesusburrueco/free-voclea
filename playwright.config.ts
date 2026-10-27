@@ -5,6 +5,7 @@ export default defineConfig({
   outputDir: 'artifacts/playwright',
   use: {
     baseURL: 'http://localhost:4173',
+    ...(process.env.CHROMIUM_PATH ? { launchOptions: { executablePath: process.env.CHROMIUM_PATH } } : {}),
   },
   projects: [
     {
