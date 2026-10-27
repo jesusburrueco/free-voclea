@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "fixtures": "node test/fixtures/generate.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
