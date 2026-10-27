@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 16:00
+- Tarea: Fase 1 "Detector de pitch (YIN o MPM) en el worklet".
+- Hecho: src/audio/pitch.ts (YIN con interpolacion parabolica, devuelve freq y claridad), integrado en capture-processor (ventana 2048, campos freq y clarity en el mensaje), tests contra fixtures: senos 110 a 880 Hz con error < 10 cents, barrido, ruido y silencio sin tono.
+- Verificacion: build, test (39), lint y e2e ok (5). Sin UI nueva, sin captura nueva.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: Fase 1 "Segmentacion de notas: note on/off con histeresis y umbral de nivel".
+- Bloqueos: ninguno.
+
 ## 2026-10-27 15:00
 - Tarea: Fase 0 "Selector de dispositivo de entrada y restricciones de getUserMedia".
 - Hecho: src/audio/constraints.ts (sin AGC, supresion de ruido ni eco, mono, deviceId exact), selector en UI con lista por enumerateDevices, devicechange y recuerdo en localStorage, fallback si el dispositivo guardado desaparece.
