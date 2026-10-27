@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 17:00
+- Tarea: Fase 1 "Segmentacion de notas: note on/off con histeresis y umbral de nivel".
+- Hecho: src/audio/segmenter.ts (NoteSegmenter puro: umbral de entrada en dBFS con histeresis de nivel, claridad minima, tiempos de apertura/cierre, pegajosidad en semitonos y tiempo minimo de cambio), integrado en capture-processor (campo events en el mensaje), 8 tests deterministas.
+- Verificacion: build, test (47), lint y e2e ok (5, CHROMIUM_PATH del entorno). Sin UI nueva, sin captura nueva.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: Fase 1 "Cuantizacion a escala y tonalidad (todas las escalas de SPEC.md)".
+- Bloqueos: ninguno.
+
 ## 2026-10-27 16:00
 - Tarea: Fase 1 "Detector de pitch (YIN o MPM) en el worklet".
 - Hecho: src/audio/pitch.ts (YIN con interpolacion parabolica, devuelve freq y claridad), integrado en capture-processor (ventana 2048, campos freq y clarity en el mensaje), tests contra fixtures: senos 110 a 880 Hz con error < 10 cents, barrido, ruido y silencio sin tono.
