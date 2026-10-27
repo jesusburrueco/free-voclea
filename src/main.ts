@@ -2,6 +2,7 @@ import './style.css';
 import { toDb } from './audio/level';
 import { classifyMicError, isMicSupported, MIC_ERROR_MESSAGES } from './audio/mic-error';
 import { resolveDeviceId, toInputDevices } from './audio/constraints';
+import { midiToName } from './notes';
 import type { Engine } from './audio/engine';
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -15,6 +16,8 @@ if (app) {
       <label for="entrada">Entrada de audio</label>
       <select id="entrada" aria-label="Entrada de audio"><option value="">Predeterminada</option></select>
       <meter id="nivel" min="-100" max="0" value="-100" aria-label="Nivel de entrada"></meter>
+      <label class="sonido"><input id="sonido" type="checkbox" checked /> Sonido interno</label>
+      <p id="nota" aria-label="Nota detectada"></p>
       <p id="estado" role="status"></p>
     </main>
   `;
@@ -23,7 +26,10 @@ if (app) {
   const status = app.querySelector<HTMLParagraphElement>('#estado');
   const hint = app.querySelector<HTMLParagraphElement>('#permiso');
   const select = app.querySelector<HTMLSelectElement>('#entrada');
+  const sound = app.querySelector<HTMLInputElement>('#sonido');
+  const noteEl = app.querySelector<HTMLParagraphElement>('#nota');
   let engine: Engine | null = null;
+  sound?.addEventListener('change', () => engine?.setSound(sound.checked));
 
   const readSaved = (): string | undefined => {
     try {
@@ -69,11 +75,13 @@ if (app) {
         hint.hidden = false;
       } else {
         const { startEngine } = await import('./audio/engine');
-        engine = await startEngine(({ rms }) => {
+        engine = await startEngine(({ rms, events }) => {
           meter.value = toDb(rms);
+          for (const ev of events ?? []) if (noteEl && ev.type === 'on') noteEl.textContent = midiToName(ev.note);
           status.dataset['activo'] = '1';
           delete status.dataset['error'];
         }, select?.value || undefined);
+        engine.setSound(sound?.checked ?? true);
         void refreshDevices();
         button.textContent = 'Detener';
         status.textContent = 'Micro activo';

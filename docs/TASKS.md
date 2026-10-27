@@ -15,7 +15,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Detector de pitch (YIN o MPM) en el worklet, con test contra fixtures (error < 10 cents en senos)
 - [x] Segmentacion de notas: note on/off con histeresis y umbral de nivel
 - [x] Cuantizacion a escala y tonalidad (todas las escalas de SPEC.md)
-- [ ] Sinte interno basico (osciladores + envolvente) para oir el resultado
+- [x] Sinte interno basico (osciladores + envolvente) para oir el resultado
 - [ ] Salida Web MIDI con deteccion de soporte y selector de puerto
 - [ ] Pitch bend continuo con rango configurable
 - [ ] Medicion de latencia extremo a extremo y visualizacion en ajustes

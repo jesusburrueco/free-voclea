@@ -1,8 +1,11 @@
 import workletUrl from './capture-processor.ts?worker&url';
 import { buildAudioConstraints } from './constraints';
 import type { Level } from './level';
+import { Synth } from './synth';
 
 export interface Engine {
+  /** Activa o silencia el sinte interno. */
+  setSound(on: boolean): void;
   stop(): Promise<void>;
 }
 
@@ -23,11 +26,24 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
     await ctx.audioWorklet.addModule(workletUrl);
     const source = ctx.createMediaStreamSource(stream);
     const node = new AudioWorkletNode(ctx, 'capture-processor', { numberOfOutputs: 0 });
-    node.port.onmessage = (e: MessageEvent<Level>) => onLevel(e.data);
+    const synth = new Synth(ctx);
+    let sound = true;
+    node.port.onmessage = (e: MessageEvent<Level>) => {
+      for (const ev of e.data.events ?? []) {
+        if (ev.type === 'on' && sound) synth.noteOn(ev.note);
+        else if (ev.type === 'off') synth.noteOff();
+      }
+      onLevel(e.data);
+    };
     source.connect(node);
     return {
+      setSound(on) {
+        sound = on;
+        if (!on) synth.noteOff();
+      },
       async stop() {
         node.port.onmessage = null;
+        synth.dispose();
         source.disconnect();
         stream.getTracks().forEach((t) => t.stop());
         await ctx.close();
