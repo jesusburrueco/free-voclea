@@ -25,6 +25,8 @@ export interface Engine {
   setTriggersEnabled(on: boolean): void;
   /** Umbral de entrada para abrir una nota, en dBFS. */
   setThreshold(db: number): void;
+  /** Suena una voz del kit interno (para los pads tactiles). */
+  preview(voice: string, velocity: number): void;
   /** Activa el calculo del centroide espectral (solo hace falta para el CC de timbre). */
   setCentroid(on: boolean): void;
   /** Pegajosidad de la nota, 0..1. */
@@ -114,6 +116,9 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
       setTriggersEnabled(on) {
         triggersOn = on;
         node.port.postMessage({ type: 'enabled', value: on });
+      },
+      preview(voice, velocity) {
+        if (sound) drums.trigger(voice, velocity);
       },
       setCentroid(on) {
         node.port.postMessage({ type: 'centroid', value: on });

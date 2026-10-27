@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('la pagina de ayuda se abre desde la app y vuelve', async ({ page }) => {
   await page.goto('/');
+  await page.getByRole('tab', { name: 'Ajustes' }).click();
   await page.getByRole('link', { name: 'Ayuda' }).click();
   await expect(page.getByRole('heading', { name: 'Ayuda', level: 1 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Beatbox' })).toBeVisible();

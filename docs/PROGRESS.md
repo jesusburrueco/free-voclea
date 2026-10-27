@@ -60,6 +60,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente: probar en un movil real (iOS y Android), medir CPU y latencia, afinar umbrales con voz real.
 - Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
 
+## 2026-10-27 21:00
+- Tarea: rediseno de la interfaz (peticion del usuario), manteniendo todas las opciones.
+- Hecho: barra de pestanas inferior (Tocar, Melodia, Acordes, Beatbox, Ajustes) con lo basico en la principal (boton de micro con aro de nivel, nota y acorde en grande, rueda, chips de melodia/acordes/sonido, tonalidad, pads tactiles que se iluminan con los golpes) y lo avanzado en tarjetas y desplegables; interruptores y chips propios; temas claro y oscuro con variables CSS; icono y estilo propios (sin elementos de otros productos).
+- Verificacion: build, lint, test (134) y e2e (22) ok; capturas `artifacts/pestana-*.png`. e2e/helpers.ts muestra todas las pestanas y abre los desplegables.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: probar en movil real y afinar con voz real.
+- Bloqueos: ninguno.
+
 ## 2026-10-27 15:00
 - Tarea: Fase 0 "Selector de dispositivo de entrada y restricciones de getUserMedia".
 - Hecho: src/audio/constraints.ts (sin AGC, supresion de ruido ni eco, mono, deviceId exact), selector en UI con lista por enumerateDevices, devicechange y recuerdo en localStorage, fallback si el dispositivo guardado desaparece.

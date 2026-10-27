@@ -19,6 +19,8 @@ import {
 const STORAGE_KEY = 'triggers';
 
 interface Deps {
+  /** Contenedor de los pads tactiles de la pantalla principal. */
+  pads: HTMLElement;
   engine: () => Engine | null;
   midi: () => MidiOutput | null;
 }
@@ -96,17 +98,48 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
     applyChannel();
   });
 
+  const pads: HTMLButtonElement[] = [];
+  const renderPads = (): void => {
+    deps.pads.replaceChildren();
+    pads.length = 0;
+    state.slots.forEach((slot, i) => {
+      const pad = document.createElement('button');
+      pad.type = 'button';
+      pad.className = 'pad';
+      pad.setAttribute('aria-label', `Pad ${slot.name}`);
+      pad.innerHTML = `<span class="pad-num">${i + 1}</span><span class="pad-nombre"></span>`;
+      (pad.querySelector('.pad-nombre') as HTMLElement).textContent = slot.name;
+      pad.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (slot.dest !== 'midi') deps.engine()?.preview(slot.voice, 100);
+        if (slot.dest !== 'interno') deps.midi()?.sendTrigger(slot.note, FIXED_VELOCITY);
+        flash(i);
+      });
+      pads.push(pad);
+      deps.pads.append(pad);
+    });
+  };
+  const flash = (i: number): void => {
+    const pad = pads[i];
+    if (!pad) return;
+    pad.classList.add('golpe');
+    setTimeout(() => pad.classList.remove('golpe'), 160);
+  };
+
   const render = (): void => {
+    renderPads();
     list.replaceChildren();
     state.slots.forEach((slot, i) => {
       const box = document.createElement('fieldset');
       box.className = 'slot';
       box.innerHTML = `
         <legend>Sonido ${i + 1}</legend>
+        <div class="rejilla">
         <label>Nombre <input data-f="name" type="text" maxlength="${MAX_NAME_LENGTH}" aria-label="Nombre del sonido ${i + 1}" /></label>
         <label>Nota MIDI <input data-f="note" type="number" inputmode="numeric" min="0" max="127" aria-label="Nota MIDI del sonido ${i + 1}" /></label>
         <label>Voz interna <select data-f="voice" aria-label="Voz interna del sonido ${i + 1}">${DRUM_VOICES.map((v) => `<option value="${v.id}">${v.name}</option>`).join('')}</select></label>
         <label>Destino <select data-f="dest" aria-label="Destino del sonido ${i + 1}"><option value="ambos">MIDI e interno</option><option value="midi">Solo MIDI</option><option value="interno">Solo interno</option></select></label>
+        </div>
         <label class="sonido"><input data-f="vel" type="checkbox" aria-label="Velocidad segun la fuerza del sonido ${i + 1}" /> Velocidad segun la fuerza</label>
         <p data-f="count">${slot.examples.length} ejemplos</p>
         <button type="button" data-f="rec" aria-label="Grabar sonido ${i + 1}">${armed === i ? `Grabando ${collected}/${EXAMPLES_PER_TRAINING}` : 'Grabar'}</button>
@@ -125,6 +158,7 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
       dest.addEventListener('change', () => {
         slot.dest = dest.value as Slot['dest'];
         save();
+        renderPads();
         syncEngine();
       });
       vel.addEventListener('change', () => {
@@ -135,6 +169,7 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
         slot.name = name.value.trim().slice(0, MAX_NAME_LENGTH) || slot.name;
         name.value = slot.name;
         save();
+        renderPads();
       });
       note.addEventListener('change', () => {
         slot.note = clampNote(Number(note.value), slot.note);
@@ -189,6 +224,7 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
       if (!s) return;
       if (s.dest !== 'interno') deps.midi()?.sendTrigger(s.note, s.velocity ? velocity : FIXED_VELOCITY);
       status.textContent = `${s.name} (${velocity})`;
+      flash(slot);
     },
     onExample(slot: number, vec: number[]): void {
       if (armed !== slot) return;

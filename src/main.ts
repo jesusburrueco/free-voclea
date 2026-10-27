@@ -19,58 +19,140 @@ import type { Engine } from './audio/engine';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (app) {
+  const icon = (d: string): string => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}" /></svg>`;
+  const ICONS = {
+    tocar: 'M3 12h2v0M7 8v8M11 4v16M15 8v8M19 10v4',
+    melodia: 'M9 18V6l10-2v12M9 18a3 3 0 1 1-3-3 3 3 0 0 1 3 3zM19 16a3 3 0 1 1-3-3 3 3 0 0 1 3 3z',
+    acordes: 'M4 20V9h4v11M10 20V5h4v15M16 20v-8h4v8',
+    beatbox: 'M4 9a8 3 0 1 0 16 0 8 3 0 0 0-16 0zM4 9v7c0 1.7 3.6 3 8 3s8-1.3 8-3V9',
+    ajustes: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6',
+    mic: 'M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v4',
+  };
+  const TABS = [
+    { id: 'tocar', name: 'Tocar' },
+    { id: 'melodia', name: 'Melodia' },
+    { id: 'acordes', name: 'Acordes' },
+    { id: 'beatbox', name: 'Beatbox' },
+    { id: 'ajustes', name: 'Ajustes' },
+  ] as const;
   app.innerHTML = `
-    <main>
+    <header class="barra">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="12" width="4" height="8" rx="2"/><rect x="11" y="6" width="4" height="20" rx="2"/><rect x="18" y="9" width="4" height="14" rx="2"/><rect x="25" y="13" width="4" height="6" rx="2"/></svg>
       <h1>Voz a MIDI</h1>
-      <p id="permiso">Para empezar necesitamos usar el micro. El audio se procesa en tu dispositivo y no se envia a ningun sitio.</p>
-      <button id="mic" type="button">Activar micro</button>
-      <meter id="nivel" min="-100" max="0" value="-100" aria-label="Nivel de entrada"></meter>
-      <p id="nota" aria-label="Nota detectada"></p>
-      <p id="estado" role="status"></p>
-      <section aria-label="Afinacion" id="afinacion"></section>
-      <details class="grupo" open><summary>Escala y notas</summary>
-        <label for="tonica">Tonalidad</label>
-        <select id="tonica" aria-label="Tonalidad">${['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((n, i) => `<option value="${i}">${n}</option>`).join('')}</select>
-        <label for="escala">Escala</label>
-        <select id="escala" aria-label="Escala">${SCALES.map((sc) => `<option value="${sc.id}">${sc.name}</option>`).join('')}</select>
-        <p id="sugerencia">Canta unas notas para sugerir una tonalidad.</p>
-        <button id="aplicar-tonalidad" type="button" hidden>Aplicar</button>
-        <label>Notas permitidas (toca para silenciar)</label>
-        <div id="teclado"></div>
-      </details>
-      <details class="grupo"><summary>Melodia y acordes</summary><div id="salida"></div></details>
-      <details class="grupo"><summary>Beatbox (triggers)</summary><div id="triggers"></div></details>
-      <details class="grupo"><summary>Pitch bend</summary>
-        <label for="bend">Pitch bend a</label>
-        <select id="bend" aria-label="Destino del pitch bend">${BEND_TARGETS.map((t) => `<option value="${t.id}">${t.name}</option>`).join('')}</select>
-        <label for="modo-bend">Modo de bend</label>
-        <select id="modo-bend" aria-label="Modo de bend">${BEND_MODES.map((m) => `<option value="${m.id}">${m.name}</option>`).join('')}</select>
-        <label for="rango">Rango de bend (semitonos)</label>
-        <input id="rango" type="number" inputmode="numeric" min="${BEND_RANGE_MIN}" max="${BEND_RANGE_MAX}" step="1" value="${BEND_RANGE_DEFAULT}" />
-      </details>
-      <details class="grupo"><summary>Calibracion y perfiles</summary><div id="ajustes"></div></details>
-      <details class="grupo"><summary>MIDI y audio</summary>
-        <button id="midi" type="button">Activar MIDI</button>
-        <label for="puerto">Puerto MIDI</label>
-        <select id="puerto" aria-label="Puerto MIDI" disabled><option value="">Sin puerto</option></select>
-        <p id="midi-estado" aria-live="polite"></p>
-        <label for="entrada">Entrada de audio</label>
-        <select id="entrada" aria-label="Entrada de audio"><option value="">Predeterminada</option></select>
-        <label class="sonido"><input id="sonido" type="checkbox" checked /> Sonido interno</label>
-        <label for="ganancia">Nivel de entrada (dB)</label>
-        <input id="ganancia" type="range" min="-12" max="24" step="1" aria-label="Nivel de entrada en dB" />
-        <label for="pegajosidad">Pegajosidad de la nota</label>
-        <input id="pegajosidad" type="range" min="0" max="1" step="0.05" aria-label="Pegajosidad de la nota" />
-        <label for="tema">Tema</label>
-        <select id="tema" aria-label="Tema"><option value="auto">Automatico</option><option value="oscuro">Oscuro</option><option value="claro">Claro</option></select>
-        <label for="escala-ui">Tamano de la interfaz</label>
-        <select id="escala-ui" aria-label="Tamano de la interfaz">${[100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200].map((v) => `<option value="${v}">${v} %</option>`).join('')}</select>
-        <p id="latencia" aria-live="off">Latencia: activa el micro para medirla.</p>
-      </details>
-      <p><a id="ayuda" href="/ayuda.html">Ayuda</a></p>
+    </header>
+    <main>
+      <section class="panel" role="tabpanel" id="panel-tocar" aria-label="Panel de tocar" data-panel="tocar">
+        <p id="permiso" class="aviso">Para empezar necesitamos usar el micro. El audio se procesa en tu dispositivo y no se envia a ningun sitio.</p>
+        <div class="heroe">
+          <button id="mic" class="mic" type="button">${icon(ICONS.mic)}<span id="mic-etiqueta">Activar micro</span></button>
+        </div>
+        <p id="estado" class="estado" role="status"></p>
+        <meter id="nivel" min="-100" max="0" value="-100" aria-label="Nivel de entrada"></meter>
+        <div class="lectura">
+          <p id="nota" class="nota-grande" aria-label="Nota detectada"></p>
+          <p id="acorde" class="acorde" aria-label="Acorde"></p>
+        </div>
+        <section id="afinacion" aria-label="Afinacion"></section>
+        <div class="chips" id="rapido">
+          <span id="rapido-salida" class="chips-interno"></span>
+          <label class="chip"><input id="sonido" type="checkbox" checked /><span>Sonido interno</span></label>
+        </div>
+        <div class="tarjeta">
+          <h2>Tonalidad</h2>
+          <div class="rejilla">
+            <div><label for="tonica">Tonalidad</label>
+            <select id="tonica" aria-label="Tonalidad">${['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((n, i) => `<option value="${i}">${n}</option>`).join('')}</select></div>
+            <div><label for="escala">Escala</label>
+            <select id="escala" aria-label="Escala">${SCALES.map((sc) => `<option value="${sc.id}">${sc.name}</option>`).join('')}</select></div>
+          </div>
+          <p id="sugerencia" class="pista">Canta unas notas para sugerir una tonalidad.</p>
+          <button id="aplicar-tonalidad" type="button" hidden>Aplicar</button>
+        </div>
+        <div class="tarjeta">
+          <h2>Pads</h2>
+          <div id="pads" class="pads"></div>
+          <p class="pista">Toca un pad para oirlo. Los golpes de tu voz los iluminan.</p>
+        </div>
+      </section>
+
+      <section class="panel" role="tabpanel" id="panel-melodia" aria-label="Panel de melodia" data-panel="melodia" hidden>
+        <div class="tarjeta">
+          <h2>Notas permitidas</h2>
+          <p class="pista">Toca una tecla para silenciar esa nota. Tu voz se ajusta a las que quedan.</p>
+          <div id="teclado"></div>
+        </div>
+        <div class="tarjeta"><h2>Melodia</h2><div id="salida-melodia"></div></div>
+        <div class="tarjeta">
+          <h2>Pitch bend</h2>
+          <label for="bend">Pitch bend a</label>
+          <select id="bend" aria-label="Destino del pitch bend">${BEND_TARGETS.map((t) => `<option value="${t.id}">${t.name}</option>`).join('')}</select>
+          <div class="rejilla">
+            <div><label for="modo-bend">Modo de bend</label>
+            <select id="modo-bend" aria-label="Modo de bend">${BEND_MODES.map((m) => `<option value="${m.id}">${m.name}</option>`).join('')}</select></div>
+            <div><label for="rango">Rango de bend (semitonos)</label>
+            <input id="rango" type="number" inputmode="numeric" min="${BEND_RANGE_MIN}" max="${BEND_RANGE_MAX}" step="1" value="${BEND_RANGE_DEFAULT}" /></div>
+          </div>
+        </div>
+        <details class="tarjeta avanzado"><summary>Control (CC)</summary><div id="salida-cc"></div></details>
+      </section>
+
+      <section class="panel" role="tabpanel" id="panel-acordes" aria-label="Panel de acordes" data-panel="acordes" hidden>
+        <div class="tarjeta"><h2>Acordes</h2><p class="pista">Cada nota que cantas genera el acorde diatonico de ese grado.</p><div id="salida-acordes"></div></div>
+      </section>
+
+      <section class="panel" role="tabpanel" id="panel-beatbox" aria-label="Panel de beatbox" data-panel="beatbox" hidden>
+        <div class="tarjeta"><h2>Beatbox</h2><div id="triggers"></div></div>
+      </section>
+
+      <section class="panel" role="tabpanel" id="panel-ajustes" aria-label="Panel de ajustes" data-panel="ajustes" hidden>
+        <div class="tarjeta">
+          <h2>Entrada de audio</h2>
+          <label for="entrada">Entrada de audio</label>
+          <select id="entrada" aria-label="Entrada de audio"><option value="">Predeterminada</option></select>
+          <label for="ganancia">Nivel de entrada (dB)</label>
+          <input id="ganancia" type="range" min="-12" max="24" step="1" aria-label="Nivel de entrada en dB" />
+          <label for="pegajosidad">Pegajosidad de la nota</label>
+          <input id="pegajosidad" type="range" min="0" max="1" step="0.05" aria-label="Pegajosidad de la nota" />
+          <p id="latencia" class="pista" aria-live="off">Latencia: activa el micro para medirla.</p>
+        </div>
+        <div class="tarjeta">
+          <h2>MIDI</h2>
+          <button id="midi" type="button">Activar MIDI</button>
+          <label for="puerto">Puerto MIDI</label>
+          <select id="puerto" aria-label="Puerto MIDI" disabled><option value="">Sin puerto</option></select>
+          <p id="midi-estado" class="pista" aria-live="polite"></p>
+        </div>
+        <details class="tarjeta avanzado"><summary>Calibracion y perfiles</summary><div id="ajustes-perfiles"></div></details>
+        <div class="tarjeta">
+          <h2>Apariencia</h2>
+          <div class="rejilla">
+            <div><label for="tema">Tema</label>
+            <select id="tema" aria-label="Tema"><option value="auto">Automatico</option><option value="oscuro">Oscuro</option><option value="claro">Claro</option></select></div>
+            <div><label for="escala-ui">Tamano de la interfaz</label>
+            <select id="escala-ui" aria-label="Tamano de la interfaz">${[100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200].map((v) => `<option value="${v}">${v} %</option>`).join('')}</select></div>
+          </div>
+          <p><a id="ayuda" href="/ayuda.html">Ayuda</a></p>
+        </div>
+      </section>
     </main>
+    <nav class="tabs" role="tablist" aria-label="Secciones">
+      ${TABS.map((t, i) => `<button type="button" role="tab" id="tab-${t.id}" data-tab="${t.id}" aria-controls="panel-${t.id}" aria-selected="${i === 0}">${icon(ICONS[t.id])}<span>${t.name}</span></button>`).join('')}
+    </nav>
   `;
+  const showTab = (id: string): void => {
+    app.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => (p.hidden = p.dataset['panel'] !== id));
+    app.querySelectorAll<HTMLButtonElement>('[role="tab"]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset['tab'] === id)));
+    window.scrollTo({ top: 0 });
+  };
+  app.querySelectorAll<HTMLButtonElement>('[role="tab"]').forEach((t) => t.addEventListener('click', () => showTab(t.dataset['tab'] ?? 'tocar')));
   const button = app.querySelector<HTMLButtonElement>('#mic');
+  const micLabel = app.querySelector<HTMLElement>('#mic-etiqueta');
+  const setMic = (text: string, on: boolean): void => {
+    if (micLabel) micLabel.textContent = text;
+    button?.classList.toggle('activo', on);
+    if (!on) button?.style.removeProperty('--nivel');
+  };
+  const chordEl = app.querySelector<HTMLParagraphElement>('#acorde');
   const meter = app.querySelector<HTMLMeterElement>('#nivel');
   const status = app.querySelector<HTMLParagraphElement>('#estado');
   const hint = app.querySelector<HTMLParagraphElement>('#permiso');
@@ -88,9 +170,17 @@ if (app) {
     engine.setPresets(st.presets.melody, st.presets.chord);
     engine.setCentroid(st.cc.timbre.on);
   };
-  const panel = mountOutputPanel(app.querySelector<HTMLElement>('#salida') as HTMLElement, applyPanel);
+  const panel = mountOutputPanel(
+    {
+      quick: app.querySelector<HTMLElement>('#rapido-salida') as HTMLElement,
+      melodia: app.querySelector<HTMLElement>('#salida-melodia') as HTMLElement,
+      acordes: app.querySelector<HTMLElement>('#salida-acordes') as HTMLElement,
+      cc: app.querySelector<HTMLElement>('#salida-cc') as HTMLElement,
+    },
+    applyPanel,
+  );
   cc.setConfig(panel.state().cc);
-  const setup = mountSetup(app.querySelector<HTMLElement>('#ajustes') as HTMLElement, {
+  const setup = mountSetup(app.querySelector<HTMLElement>('#ajustes-perfiles') as HTMLElement, {
     active: () => engine !== null,
     onCalibrated: (r) => {
       settings = { ...settings, thresholdDb: r.thresholdDb };
@@ -99,7 +189,7 @@ if (app) {
       if (r.range) panel.setRange(r.range.low, r.range.high);
     },
   });
-  const triggers = mountTriggers(app.querySelector<HTMLElement>('#triggers') as HTMLElement, { engine: () => engine, midi: () => midi });
+  const triggers = mountTriggers(app.querySelector<HTMLElement>('#triggers') as HTMLElement, { engine: () => engine, midi: () => midi, pads: app.querySelector<HTMLElement>('#pads') as HTMLElement });
   const midiBtn = app.querySelector<HTMLButtonElement>('#midi');
   const portSel = app.querySelector<HTMLSelectElement>('#puerto');
   const midiStatus = app.querySelector<HTMLParagraphElement>('#midi-estado');
@@ -291,7 +381,7 @@ if (app) {
         heldNote = null;
         midi?.allNotesOff();
         meter.value = -100;
-        button.textContent = 'Activar micro';
+        setMic('Activar micro', false);
         if (latencyEl) latencyEl.textContent = 'Latencia: activa el micro para medirla.';
         status.textContent = '';
         hint.hidden = false;
@@ -299,6 +389,7 @@ if (app) {
         const { startEngine } = await import('./audio/engine');
         engine = await startEngine(({ rms, freq, clarity, events, out, centroid }) => {
           meter.value = toDb(rms);
+          button.style.setProperty('--nivel', String(Math.min(1, Math.max(0, (toDb(rms) + 60) / 50))));
           setup.feed({ db: toDb(rms), freq: freq ?? 0, clarity: clarity ?? 0 });
           if (freq && freq > 0) {
             const near = nearestNote(freq);
@@ -325,7 +416,10 @@ if (app) {
             }
             if (noteEl && ev.type === 'on') noteEl.textContent = midiToName(ev.note);
           }
-          for (const o of out ?? []) midi?.sendOut(o);
+          for (const o of out ?? []) {
+            midi?.sendOut(o);
+            if (o.part === 'chord' && chordEl) chordEl.textContent = o.type === 'on' ? o.notes.map(midiToName).join(' ') : '';
+          }
           applyBend(freq ?? 0);
           for (const m of cc.update({ db: toDb(rms), centroidHz: centroid ?? 0, voiced: heldNote !== null })) midi?.sendCc(m.controller, m.value, m.channel);
           status.dataset['activo'] = '1';
@@ -341,7 +435,7 @@ if (app) {
         engine.setStickiness(settings.stickiness);
         void refreshDevices();
         if (latencyEl) latencyEl.textContent = formatLatency(engine.latency());
-        button.textContent = 'Detener';
+        setMic('Detener', true);
         status.textContent = 'Micro activo';
         hint.hidden = true;
       }
@@ -349,7 +443,7 @@ if (app) {
       const kind = classifyMicError(err);
       status.textContent = MIC_ERROR_MESSAGES[kind];
       status.dataset['error'] = kind;
-      button.textContent = 'Reintentar';
+      setMic('Reintentar', false);
     } finally {
       button.disabled = false;
     }

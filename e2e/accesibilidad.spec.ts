@@ -15,7 +15,7 @@ test('todos los controles tienen nombre accesible y el tema claro cambia los col
   );
   expect(sinNombre).toEqual([]);
 
-  const fondo = (): Promise<string> => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  const fondo = (): Promise<string> => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
   const oscuro = await fondo();
   await page.getByLabel('Tema').selectOption('claro');
   const claro = await fondo();

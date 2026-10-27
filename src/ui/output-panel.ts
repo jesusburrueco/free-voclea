@@ -37,46 +37,62 @@ function load(): PanelState {
 }
 
 const num = (label: string, id: string, min: number, max: number): string =>
-  `<label for="${id}">${label}</label><input id="${id}" type="number" inputmode="numeric" min="${min}" max="${max}" step="1" />`;
+  `<div><label for="${id}">${label}</label><input id="${id}" type="number" inputmode="numeric" min="${min}" max="${max}" step="1" /></div>`;
 
 /** Panel de melodia, acordes, rango, canales, presets y CC. Devuelve el estado vivo y avisa de cada cambio. */
-export function mountOutputPanel(host: HTMLElement, onChange: (state: PanelState) => void): { state: () => PanelState; setRange(low: number, high: number): void } {
+export interface PanelHosts {
+  /** Interruptores rapidos de melodia y acordes. */
+  quick: HTMLElement;
+  melodia: HTMLElement;
+  acordes: HTMLElement;
+  cc: HTMLElement;
+}
+
+export function mountOutputPanel(hosts: PanelHosts, onChange: (state: PanelState) => void): { state: () => PanelState; setRange(low: number, high: number): void } {
   const state = load();
-  host.innerHTML = `
-    <details open><summary>Notas y canales</summary>
-      <label class="sonido"><input id="o-melodia" type="checkbox" /> Melodia</label>
-      <label class="sonido"><input id="o-acordes" type="checkbox" /> Acordes</label>
+  hosts.quick.innerHTML = `
+    <label class="chip"><input id="o-melodia" type="checkbox" /><span>Melodia</span></label>
+    <label class="chip"><input id="o-acordes" type="checkbox" /><span>Acordes</span></label>`;
+  hosts.melodia.innerHTML = `
+    <div class="rejilla">
       ${num('Octava de la melodia', 'o-octava', -3, 3)}
       ${num('Transposicion (semitonos)', 'o-transp', -12, 12)}
-      ${num('Octava de los acordes', 'o-octacordes', -2, 1)}
       ${num('Nota minima (MIDI)', 'o-min', 0, 127)}
       ${num('Nota maxima (MIDI)', 'o-max', 0, 127)}
       ${num('Canal MIDI de la melodia', 'o-canal-mel', 1, 16)}
+    </div>
+    <label for="o-preset-mel">Sonido interno de la melodia</label>
+    <select id="o-preset-mel">${presetOptions}</select>`;
+  hosts.acordes.innerHTML = `
+    <div class="rejilla">
+      ${num('Octava de los acordes', 'o-octacordes', -2, 1)}
       ${num('Canal MIDI de los acordes', 'o-canal-ac', 1, 16)}
-      <label for="o-preset-mel">Sonido interno de la melodia</label>
-      <select id="o-preset-mel">${presetOptions}</select>
-      <label for="o-preset-ac">Sonido interno de los acordes</label>
-      <select id="o-preset-ac">${presetOptions}</select>
-    </details>
-    <details><summary>Tipo de acorde</summary>
-      <label for="o-inv">Inversion</label>
-      <select id="o-inv"><option value="0">Fundamental</option><option value="1">Primera</option><option value="2">Segunda</option></select>
-      <label for="o-ap">Apertura</label>
-      <select id="o-ap"><option value="close">Cerrada</option><option value="open">Abierta</option></select>
-      <label for="o-bajo">Bajo</label>
-      <select id="o-bajo"><option value="off">Sin bajo</option><option value="follow">Una octava bajo la raiz</option><option value="fixed">Octava fija</option></select>
-      ${num('Octavas del bajo bajo la raiz', 'o-bajo-oct', 1, 4)}
-      ${DEGREES.map((d, i) => `<label for="o-grado-${i}">Grado ${d}</label><select id="o-grado-${i}">${variantOptions}</select>`).join('')}
-    </details>
-    <details><summary>Control (CC)</summary>
-      <label class="sonido"><input id="cc-env-on" type="checkbox" /> Volumen de la voz</label>
+    </div>
+    <label for="o-preset-ac">Sonido interno de los acordes</label>
+    <select id="o-preset-ac">${presetOptions}</select>
+    <label for="o-inv">Inversion</label>
+    <select id="o-inv"><option value="0">Fundamental</option><option value="1">Primera</option><option value="2">Segunda</option></select>
+    <label for="o-ap">Apertura</label>
+    <select id="o-ap"><option value="close">Cerrada</option><option value="open">Abierta</option></select>
+    <label for="o-bajo">Bajo</label>
+    <select id="o-bajo"><option value="off">Sin bajo</option><option value="follow">Una octava bajo la raiz</option><option value="fixed">Octava fija</option></select>
+    ${num('Octavas del bajo bajo la raiz', 'o-bajo-oct', 1, 4)}
+    <details class="avanzado"><summary>Variante de cada grado</summary>
+      <div class="rejilla">${DEGREES.map((d, i) => `<div><label for="o-grado-${i}">Grado ${d}</label><select id="o-grado-${i}">${variantOptions}</select></div>`).join('')}</div>
+    </details>`;
+  hosts.cc.innerHTML = `
+    <label class="interruptor"><input id="cc-env-on" type="checkbox" /><span>Volumen de la voz</span></label>
+    <div class="rejilla">
       ${num('CC del volumen', 'cc-env-cc', 0, 127)}
       ${num('Canal del volumen', 'cc-env-ch', 1, 16)}
-      <label class="sonido"><input id="cc-tim-on" type="checkbox" /> Timbre (brillo de la vocal)</label>
+    </div>
+    <label class="interruptor"><input id="cc-tim-on" type="checkbox" /><span>Timbre (brillo de la vocal)</span></label>
+    <div class="rejilla">
       ${num('CC del timbre', 'cc-tim-cc', 0, 127)}
       ${num('Canal del timbre', 'cc-tim-ch', 1, 16)}
-    </details>`;
-  const el = <T extends HTMLElement>(id: string): T => host.querySelector<T>(`#${id}`) as T;
+    </div>`;
+  const all = Object.values(hosts);
+  const el = <T extends HTMLElement>(id: string): T => document.querySelector<T>(`#${id}`) as T;
   const n = (id: string): number => Number(el<HTMLInputElement>(id).value);
 
   const write = (): void => {
@@ -140,7 +156,7 @@ export function mountOutputPanel(host: HTMLElement, onChange: (state: PanelState
   };
 
   write();
-  host.addEventListener('change', read);
+  for (const h of all) h.addEventListener('change', read);
   return {
     state: () => state,
     setRange(low, high) {
