@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 19:00
+- Tarea: Fase 1 "Sinte interno basico (osciladores + envolvente)".
+- Hecho: synth.ts (envelopeGain ADSR pura y Synth monofonico con oscilador triangulo), conectado en engine.ts a los note on/off del worklet, casilla "Sonido interno" y ultima nota detectada en la UI.
+- Verificacion: build, test (58), lint y e2e ok (6), captura `artifacts/sinte.png`. El e2e no afirma la deteccion de nota: el micro falso de Chromium emite pitidos muy cortos y espaciados.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: Fase 1 "Salida Web MIDI con deteccion de soporte y selector de puerto".
+- Bloqueos: ninguno.
+
 ## 2026-10-27 18:00
 - Tarea: Fase 1 "Cuantizacion a escala y tonalidad (todas las escalas de SPEC.md)".
 - Hecho: src/scales.ts (15 escalas: 14 documentadas mas cromatica, quantizeToScale a la nota de escala mas cercana, empates hacia abajo, tonica 0..11), 7 tests deterministas. Sin integrar aun en la UI ni en el flujo de notas.
