@@ -1,5 +1,6 @@
 import { RingBuffer } from './ring-buffer';
 import { measureLevel } from './level';
+import { detectPitch, minWindow } from './pitch';
 
 declare class AudioWorkletProcessor {
   readonly port: MessagePort;
@@ -8,7 +9,7 @@ declare class AudioWorkletProcessor {
 declare function registerProcessor(name: string, ctor: new () => AudioWorkletProcessor): void;
 declare const sampleRate: number;
 
-const WINDOW = 1024;
+const WINDOW = 2048;
 const REPORT_HZ = 30;
 
 class CaptureProcessor extends AudioWorkletProcessor {
@@ -25,7 +26,8 @@ class CaptureProcessor extends AudioWorkletProcessor {
       this.sinceReport = 0;
       const n = this.ring.readLatest(this.window);
       const { rms, peak } = measureLevel(this.window.subarray(WINDOW - n));
-      this.port.postMessage({ rms, peak });
+      const { freq, clarity } = n >= minWindow(sampleRate) ? detectPitch(this.window.subarray(WINDOW - n), sampleRate) : { freq: 0, clarity: 0 };
+      this.port.postMessage({ rms, peak, freq, clarity });
     }
     return true;
   }

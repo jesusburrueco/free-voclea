@@ -12,7 +12,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Selector de dispositivo de entrada y restricciones de getUserMedia (sin AGC, sin supresion de ruido, sin cancelacion de eco)
 
 ## Fase 1. Pitch a notas
-- [ ] Detector de pitch (YIN o MPM) en el worklet, con test contra fixtures (error < 10 cents en senos)
+- [x] Detector de pitch (YIN o MPM) en el worklet, con test contra fixtures (error < 10 cents en senos)
 - [ ] Segmentacion de notas: note on/off con histeresis y umbral de nivel
 - [ ] Cuantizacion a escala y tonalidad (todas las escalas de SPEC.md)
 - [ ] Sinte interno basico (osciladores + envolvente) para oir el resultado

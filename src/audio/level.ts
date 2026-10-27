@@ -1,6 +1,9 @@
 export interface Level {
   rms: number;
   peak: number;
+  /** Pitch en Hz (0 si no hay tono); solo lo rellena el worklet. */
+  freq?: number;
+  clarity?: number;
 }
 
 export function measureLevel(samples: Float32Array): Level {
