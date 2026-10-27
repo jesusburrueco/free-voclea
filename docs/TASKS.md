@@ -4,11 +4,12 @@ Estados: `[ ]` pendiente, `[~]` en curso, `[x]` hecha, `[!]` bloqueada (motivo e
 Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir tareas al final de la fase que toque, nunca reordenar las de otras fases.
 
 ## Fase 0. Base
-- [ ] Scaffold Vite + TS estricto, ESLint, Vitest, Playwright (viewport 375x812), scripts del CLAUDE.md
+- [x] Scaffold Vite + TS estricto, ESLint, Vitest, Playwright (viewport 375x812), scripts del CLAUDE.md
 - [ ] PWA: manifest, service worker, iconos propios
 - [ ] Pipeline de audio: getUserMedia + AudioWorklet con buffer circular, medidor de nivel en UI
 - [ ] Desbloqueo de AudioContext por gesto (requisito iOS) y pantalla de permisos de micro
 - [ ] Banco de pruebas: carpeta `test/fixtures` con audio sintetico generado por script (senos, barridos, ruido) para tests deterministas
+- [ ] Selector de dispositivo de entrada y restricciones de getUserMedia (sin AGC, sin supresion de ruido, sin cancelacion de eco)
 
 ## Fase 1. Pitch a notas
 - [ ] Detector de pitch (YIN o MPM) en el worklet, con test contra fixtures (error < 10 cents en senos)
@@ -18,6 +19,11 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [ ] Salida Web MIDI con deteccion de soporte y selector de puerto
 - [ ] Pitch bend continuo con rango configurable
 - [ ] Medicion de latencia extremo a extremo y visualizacion en ajustes
+- [ ] Modos de pitch bend anclado y fiel (selector, nombres propios)
+- [ ] Bend activable por destino: melodia, acordes, ambos o ninguno
+- [ ] Teclado de salida con silenciado de notas (tactil, multitouch)
+- [ ] Visualizacion de afinacion en tiempo real (rueda de notas propia)
+- [ ] Sugerencia de tonalidad a partir de notas cantadas
 
 ## Fase 2. Triggers (beatbox)
 - [ ] Detector de onsets
@@ -25,11 +31,17 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [ ] Entrenamiento por el usuario: grabar N ejemplos por slot, clasificador k-NN
 - [ ] Mapeo slot a nota MIDI y a sample interno
 - [ ] Velocidad a partir de la energia del golpe
+- [ ] Sensibilidad de triggers, canal MIDI de triggers, nombre por trigger y borrado individual
+- [ ] Kit de percusion interno sintetizado (propio)
 
 ## Fase 3. Acordes y control expresivo
 - [ ] Modo acordes: generar acordes diatonicos a partir de la nota cantada, voicings e inversiones
 - [ ] CC por envolvente de volumen y por timbre/vocal (mapeo configurable)
 - [ ] Octava, transposicion, rango de notas permitido
+- [ ] Mapeo de acordes personalizado por grado y variantes (triada, maj7, sus2, sus4)
+- [ ] Bajo de raiz y octava de acordes (seguir octava cantada o fija)
+- [ ] Canales MIDI separados para melodia, acordes y CC
+- [ ] Presets de sinte internos propios para melodia y acordes
 
 ## Fase 4. Configuracion y perfiles
 - [ ] Perfiles guardados (IndexedDB), exportar/importar JSON
