@@ -3,9 +3,10 @@ import { buildAudioConstraints } from './constraints';
 import type { Level } from './level';
 import { ANALYSIS_WINDOW, REPORT_RATE, estimateLatency, type LatencyReport } from './latency';
 import { NoteMapper } from './quantizer';
+import { OutputRouter, defaultOutputSettings, type OutEvent, type OutputSettings } from './router';
 import { DrumKit } from './drums';
 import type { Example } from '../beat/knn';
-import { Synth } from './synth';
+import { Synth, getPreset } from './synth';
 
 export interface TriggerHandlers {
   /** Golpe reconocido: indice de slot y velocidad MIDI. */
@@ -27,9 +28,13 @@ export interface Engine {
   /** Activa o silencia el sinte interno. */
   setSound(on: boolean): void;
   /** Desviacion de la voz respecto a la nota viva, en semitonos (0 para quitarla). */
-  setBend(semitones: number): void;
+  setBend(semitones: number, parts?: { melody: boolean; chords: boolean }): void;
   /** Estimacion actual de latencia extremo a extremo. */
   latency(): LatencyReport;
+  /** Ajustes de salida (melodia, acordes, octava, rango, canales). Devuelve los note off de lo que sonaba. */
+  setOutput(settings: OutputSettings): OutEvent[];
+  /** Presets de sinte interno por salida. */
+  setPresets(melody: string, chord: string): void;
   /** Tonica (0..11) y escala a la que se cuantizan las notas. */
   setScale(tonic: number, scaleId: string): void;
   /** Clases de altura (0..11) silenciadas en la salida. */
@@ -57,6 +62,9 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
     const source = ctx.createMediaStreamSource(stream);
     const node = new AudioWorkletNode(ctx, 'capture-processor', { numberOfOutputs: 0 });
     const synth = new Synth(ctx);
+    const chordSynth = new Synth(ctx, getPreset('puro'));
+    const router = new OutputRouter();
+    router.setSettings(defaultOutputSettings);
     let sound = true;
     const mapper = new NoteMapper();
     const drums = new DrumKit(ctx);
@@ -74,10 +82,13 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
       }
       const events = mapper.process(e.data.events ?? []);
       e.data.events = events;
-      for (const ev of events) {
-        if (ev.type === 'on' && sound) synth.noteOn(ev.note);
-        else if (ev.type === 'off') synth.noteOff();
+      const out = router.process(events);
+      for (const ev of out) {
+        const target = ev.part === 'melody' ? synth : chordSynth;
+        if (ev.type === 'on' && sound) target.noteOn(ev.notes);
+        else if (ev.type === 'off') target.noteOff();
       }
+      e.data.out = out;
       onLevel(e.data);
     };
     source.connect(node);
@@ -112,20 +123,36 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
       },
       setSound(on) {
         sound = on;
-        if (!on) synth.noteOff();
+        if (!on) {
+          synth.noteOff();
+          chordSynth.noteOff();
+        }
+      },
+      setOutput(settings) {
+        const off = router.setSettings(settings);
+        synth.noteOff();
+        chordSynth.noteOff();
+        return off;
+      },
+      setPresets(melody, chord) {
+        synth.setPreset(getPreset(melody));
+        chordSynth.setPreset(getPreset(chord));
       },
       setScale(tonic, scaleId) {
         mapper.setScale(tonic, scaleId);
+        router.setScale(tonic, scaleId);
       },
       setMuted(pcs) {
         mapper.setMuted(pcs);
       },
-      setBend(semitones) {
-        synth.setBend(semitones);
+      setBend(semitones, parts = { melody: true, chords: false }) {
+        synth.setBend(parts.melody ? semitones : 0);
+        chordSynth.setBend(parts.chords ? semitones : 0);
       },
       async stop() {
         node.port.onmessage = null;
         synth.dispose();
+        chordSynth.dispose();
         drums.dispose();
         source.disconnect();
         stream.getTracks().forEach((t) => t.stop());

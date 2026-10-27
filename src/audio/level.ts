@@ -1,3 +1,4 @@
+import type { OutEvent } from './router';
 import type { NoteEvent } from './segmenter';
 
 export interface Level {
@@ -6,8 +7,12 @@ export interface Level {
   /** Pitch en Hz (0 si no hay tono); solo lo rellena el worklet. */
   freq?: number;
   clarity?: number;
+  /** Centroide espectral en Hz (0 si hay silencio); solo lo rellena el worklet. */
+  centroid?: number;
   /** Eventos note on/off de la trama; solo lo rellena el worklet. */
   events?: NoteEvent[];
+  /** Salidas de melodia y acordes tras octava, transposicion y rango; las rellena el motor. */
+  out?: OutEvent[];
 }
 
 export function measureLevel(samples: Float32Array): Level {

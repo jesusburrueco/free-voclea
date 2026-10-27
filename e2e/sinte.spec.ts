@@ -10,7 +10,7 @@ test.use({
 
 test('el sinte interno se puede silenciar y reactivar con el micro activo', async ({ page }) => {
   await page.goto('/');
-  const sonido = page.getByLabel('Sonido interno');
+  const sonido = page.getByRole('checkbox', { name: 'Sonido interno' });
   await expect(sonido).toBeChecked();
   await page.getByRole('button', { name: 'Activar micro' }).click();
   await expect(page.getByRole('status')).toHaveText('Micro activo');

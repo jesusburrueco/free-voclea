@@ -1,5 +1,6 @@
 import { BEND_CENTER, bendMessage } from '../audio/bend';
 import type { NoteEvent } from '../audio/segmenter';
+import type { OutEvent } from '../audio/router';
 
 export interface MidiPortInfo {
   id: string;
@@ -36,7 +37,8 @@ export type MidiResult = { ok: true; midi: MidiOutput } | { ok: false; reason: '
 
 export class MidiOutput {
   private selected: string | null = null;
-  private sounding = new Set<number>();
+  /** Notas vivas como `canal:nota`. */
+  private sounding = new Set<string>();
   channel = 1;
   /** Canal de los triggers de percusion (General MIDI: 10). */
   triggerChannel = 10;
@@ -79,9 +81,28 @@ export class MidiOutput {
   send(ev: NoteEvent): void {
     const out = this.current();
     if (!out) return;
-    if (ev.type === 'on') this.sounding.add(ev.note);
-    else this.sounding.delete(ev.note);
+    const key = `${this.channel}:${ev.note}`;
+    if (ev.type === 'on') this.sounding.add(key);
+    else this.sounding.delete(key);
     out.send(noteMessage(ev, this.channel));
+  }
+
+  /** Salida de melodia o acordes: una nota por cada elemento, en su canal. */
+  sendOut(ev: OutEvent, velocity = NOTE_VELOCITY): void {
+    const out = this.current();
+    if (!out) return;
+    for (const note of ev.notes) {
+      const key = `${ev.channel}:${note}`;
+      if (ev.type === 'on') this.sounding.add(key);
+      else this.sounding.delete(key);
+      out.send(noteMessage({ type: ev.type, note }, ev.channel, velocity));
+    }
+  }
+
+  /** Mensaje de control (CC) en un canal. */
+  sendCc(controller: number, value: number, channel = this.channel): void {
+    const ch = Math.min(16, Math.max(1, Math.round(channel))) - 1;
+    this.current()?.send([0xb0 | ch, Math.min(127, Math.max(0, Math.round(controller))), Math.min(127, Math.max(0, Math.round(value)))]);
   }
 
   /** Golpe de percusion: note on inmediato y note off tras `lengthMs`. */
@@ -95,15 +116,20 @@ export class MidiOutput {
   }
 
   /** Envia un valor de pitch bend de 14 bits (centro 8192). */
-  sendBend(value: number): void {
-    this.current()?.send(bendMessage(value, this.channel));
+  sendBend(value: number, channel = this.channel): void {
+    this.current()?.send(bendMessage(value, channel));
   }
 
   allNotesOff(): void {
     const out = this.current();
     if (out) {
-      for (const note of this.sounding) out.send(noteMessage({ type: 'off', note }, this.channel));
-      if (this.sounding.size > 0) out.send(bendMessage(BEND_CENTER, this.channel));
+      const channels = new Set<number>();
+      for (const key of this.sounding) {
+        const [ch, note] = key.split(':').map(Number);
+        out.send(noteMessage({ type: 'off', note: note ?? 0 }, ch ?? 1));
+        channels.add(ch ?? 1);
+      }
+      for (const ch of channels) out.send(bendMessage(BEND_CENTER, ch));
     }
     this.sounding.clear();
   }

@@ -87,3 +87,22 @@ export function extractFeatures(samples: Float32Array, rate: number): Float32Arr
   out[MFCC_COUNT + 1] = total > 0 ? weighted / total / bins : 0;
   return out;
 }
+
+/** Centroide espectral en Hz de las ultimas FEATURE_LEN muestras (0 si hay silencio). */
+export function spectralCentroidHz(samples: Float32Array, rate: number): number {
+  const { window } = plan(rate);
+  const re = new Float32Array(FEATURE_LEN);
+  const im = new Float32Array(FEATURE_LEN);
+  const offset = samples.length - FEATURE_LEN;
+  if (offset < 0) return 0;
+  for (let i = 0; i < FEATURE_LEN; i++) re[i] = (samples[offset + i] ?? 0) * (window[i] ?? 0);
+  fft(re, im);
+  let total = 0;
+  let weighted = 0;
+  for (let k = 1; k < FEATURE_LEN / 2; k++) {
+    const p = (re[k] ?? 0) ** 2 + (im[k] ?? 0) ** 2;
+    total += p;
+    weighted += k * p;
+  }
+  return total > 1e-12 ? (weighted / total) * (rate / FEATURE_LEN) : 0;
+}

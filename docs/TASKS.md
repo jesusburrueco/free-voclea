@@ -35,13 +35,13 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Kit de percusion interno sintetizado (propio)
 
 ## Fase 3. Acordes y control expresivo
-- [ ] Modo acordes: generar acordes diatonicos a partir de la nota cantada, voicings e inversiones
-- [ ] CC por envolvente de volumen y por timbre/vocal (mapeo configurable)
-- [ ] Octava, transposicion, rango de notas permitido
-- [ ] Mapeo de acordes personalizado por grado y variantes (triada, maj7, sus2, sus4)
-- [ ] Bajo de raiz y octava de acordes (seguir octava cantada o fija)
-- [ ] Canales MIDI separados para melodia, acordes y CC
-- [ ] Presets de sinte internos propios para melodia y acordes
+- [x] Modo acordes: generar acordes diatonicos a partir de la nota cantada, voicings e inversiones
+- [x] CC por envolvente de volumen y por timbre/vocal (mapeo configurable)
+- [x] Octava, transposicion, rango de notas permitido
+- [x] Mapeo de acordes personalizado por grado y variantes (triada, maj7, sus2, sus4)
+- [x] Bajo de raiz y octava de acordes (seguir octava cantada o fija)
+- [x] Canales MIDI separados para melodia, acordes y CC
+- [x] Presets de sinte internos propios para melodia y acordes
 
 ## Fase 4. Configuracion y perfiles
 - [ ] Perfiles guardados (IndexedDB), exportar/importar JSON

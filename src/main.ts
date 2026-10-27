@@ -6,6 +6,8 @@ import { midiToName, freqToMidi, nearestNote, NOTE_NAMES } from './notes';
 import { SCALES, getScale } from './scales';
 import { suggestKey } from './key';
 import { mountTriggers } from './ui/triggers';
+import { mountOutputPanel, type PanelState } from './ui/output-panel';
+import { CcMapper } from './audio/cc';
 import { PitchWheel } from './ui/wheel';
 import { MuteKeyboard } from './ui/keyboard';
 import { BEND_CENTER, BEND_MODES, BEND_TARGETS, bendAffects, bendForMode, type BendMode, type BendTarget, BEND_RANGE_DEFAULT, BEND_RANGE_MAX, BEND_RANGE_MIN, bendValue, clampBendRange } from './audio/bend';
@@ -31,6 +33,7 @@ if (app) {
         <select id="puerto" aria-label="Puerto MIDI" disabled><option value="">Sin puerto</option></select>
         <p id="midi-estado" aria-live="polite"></p>
       </section>
+      <section aria-label="Salida" id="salida"></section>
       <section aria-label="Triggers" id="triggers"></section>
       <section aria-label="Tonalidad y escala">
         <label for="tonica">Tonalidad</label>
@@ -72,6 +75,15 @@ if (app) {
   const latencyEl = app.querySelector<HTMLParagraphElement>('#latencia');
   let engine: Engine | null = null;
   let midi: MidiOutput | null = null;
+  const cc = new CcMapper();
+  const applyPanel = (st: PanelState): void => {
+    cc.setConfig(st.cc);
+    if (!engine) return;
+    for (const ev of engine.setOutput(st.output)) midi?.sendOut(ev);
+    engine.setPresets(st.presets.melody, st.presets.chord);
+  };
+  const panel = mountOutputPanel(app.querySelector<HTMLElement>('#salida') as HTMLElement, applyPanel);
+  cc.setConfig(panel.state().cc);
   const triggers = mountTriggers(app.querySelector<HTMLElement>('#triggers') as HTMLElement, { engine: () => engine, midi: () => midi });
   const midiBtn = app.querySelector<HTMLButtonElement>('#midi');
   const portSel = app.querySelector<HTMLSelectElement>('#puerto');
@@ -113,17 +125,23 @@ if (app) {
   let heldNote: number | null = null;
   const bendRange = (): number => clampBendRange(Number(rangeIn?.value));
   const applyBend = (freq: number): void => {
-    if (!bendAffects((bendSel?.value ?? 'ninguno') as BendTarget, 'melodia') || heldNote === null || freq <= 0) return;
+    const target = (bendSel?.value ?? 'ninguno') as BendTarget;
+    if (target === 'ninguno' || heldNote === null || freq <= 0) return;
     const midiNow = freqToMidi(freq);
     anchor ??= midiNow;
     const st = bendForMode((bendModeSel?.value ?? 'fiel') as BendMode, midiNow, heldNote, anchor, bendRange());
-    engine?.setBend(st);
-    midi?.sendBend(bendValue(st, bendRange()));
+    sendBendTo(st, bendValue(st, bendRange()), target);
+  };
+  const sendBendTo = (semitones: number, value: number, target: BendTarget): void => {
+    const parts = { melody: bendAffects(target, 'melodia'), chords: bendAffects(target, 'acordes') };
+    engine?.setBend(semitones, parts);
+    const o = panel.state().output;
+    if (parts.melody) midi?.sendBend(value, o.melodyChannel);
+    if (parts.chords && (!parts.melody || o.chordChannel !== o.melodyChannel)) midi?.sendBend(value, o.chordChannel);
   };
   const resetBend = (): void => {
     anchor = null;
-    engine?.setBend(0);
-    midi?.sendBend(BEND_CENTER);
+    sendBendTo(0, BEND_CENTER, 'ambos');
   };
   rangeIn?.addEventListener('change', () => {
     rangeIn.value = String(bendRange());
@@ -209,7 +227,7 @@ if (app) {
         hint.hidden = false;
       } else {
         const { startEngine } = await import('./audio/engine');
-        engine = await startEngine(({ rms, freq, events }) => {
+        engine = await startEngine(({ rms, freq, events, out, centroid }) => {
           meter.value = toDb(rms);
           if (freq && freq > 0) {
             const near = nearestNote(freq);
@@ -234,16 +252,18 @@ if (app) {
               heldNote = null;
               keyboard.setActive(null);
             }
-            midi?.send(ev);
             if (noteEl && ev.type === 'on') noteEl.textContent = midiToName(ev.note);
           }
+          for (const o of out ?? []) midi?.sendOut(o);
           applyBend(freq ?? 0);
+          for (const m of cc.update({ db: toDb(rms), centroidHz: centroid ?? 0, voiced: heldNote !== null })) midi?.sendCc(m.controller, m.value, m.channel);
           status.dataset['activo'] = '1';
           delete status.dataset['error'];
         }, select?.value || undefined, { onHit: triggers.onHit, onExample: triggers.onExample });
         triggers.onEngineStart();
         engine.setSound(sound?.checked ?? true);
         applyScale();
+        applyPanel(panel.state());
         engine.setMuted(keyboard.muted);
         void refreshDevices();
         if (latencyEl) latencyEl.textContent = formatLatency(engine.latency());

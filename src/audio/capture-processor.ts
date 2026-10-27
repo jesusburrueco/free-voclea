@@ -1,7 +1,7 @@
 import { RingBuffer } from './ring-buffer';
 import { measureLevel, toDb } from './level';
 import { OnsetDetector, dbToVelocity, sensitivityToRise } from '../beat/onset';
-import { FEATURE_LEN, extractFeatures } from '../beat/features';
+import { FEATURE_LEN, extractFeatures, spectralCentroidHz } from '../beat/features';
 import { KnnClassifier, type Example } from '../beat/knn';
 import { detectPitch, minWindow } from './pitch';
 import { NoteSegmenter } from './segmenter';
@@ -77,7 +77,8 @@ class CaptureProcessor extends AudioWorkletProcessor {
       const { rms, peak } = measureLevel(this.window.subarray(WINDOW - n));
       const { freq, clarity } = n >= minWindow(sampleRate) ? detectPitch(this.window.subarray(WINDOW - n), sampleRate) : { freq: 0, clarity: 0 };
       const events = this.segmenter.update({ rms, freq, clarity }, 1000 / REPORT_HZ);
-      this.port.postMessage({ rms, peak, freq, clarity, events });
+      const centroid = n >= FEATURE_LEN && rms > 0.003 ? spectralCentroidHz(this.window.subarray(WINDOW - n), sampleRate) : 0;
+      this.port.postMessage({ rms, peak, freq, clarity, events, centroid });
     }
     return true;
   }
