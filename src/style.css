@@ -84,3 +84,55 @@ select {
   font-size: 1.25rem;
   color: var(--fg);
 }
+
+.rueda {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  margin: 16px auto 0;
+}
+.rueda path {
+  stroke: var(--bg);
+  stroke-width: 1;
+}
+.rueda path.en-escala {
+  fill: #2a3042;
+}
+.rueda path.fuera {
+  fill: #1a1d27;
+}
+.rueda path.activa {
+  fill: #4f8cff;
+}
+.rueda text {
+  fill: var(--fg);
+  font-size: 11px;
+}
+.rueda text.centro {
+  font-size: 16px;
+}
+.rueda line {
+  stroke: #ffb74d;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.teclado {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+.teclado button {
+  padding: 0;
+  touch-action: manipulation;
+}
+.teclado button.negra {
+  background: #1a1d27;
+}
+.teclado button[aria-pressed='true'] {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+.teclado button.suena {
+  background: #4f8cff;
+}

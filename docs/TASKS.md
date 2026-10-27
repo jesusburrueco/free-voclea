@@ -21,9 +21,9 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Medicion de latencia extremo a extremo y visualizacion en ajustes
 - [x] Modos de pitch bend anclado y fiel (selector, nombres propios)
 - [x] Bend activable por destino: melodia, acordes, ambos o ninguno
-- [ ] Teclado de salida con silenciado de notas (tactil, multitouch)
-- [ ] Visualizacion de afinacion en tiempo real (rueda de notas propia)
-- [ ] Sugerencia de tonalidad a partir de notas cantadas
+- [x] Teclado de salida con silenciado de notas (tactil, multitouch)
+- [x] Visualizacion de afinacion en tiempo real (rueda de notas propia)
+- [x] Sugerencia de tonalidad a partir de notas cantadas
 
 ## Fase 2. Triggers (beatbox)
 - [ ] Detector de onsets

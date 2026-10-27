@@ -38,4 +38,15 @@ describe('NoteMapper', () => {
       { type: 'on', note: 64 },
     ]);
   });
+  it('salta las notas silenciadas', () => {
+    const m = new NoteMapper();
+    m.setMuted([1]);
+    expect(m.process([{ type: 'on', note: 61 }])).toEqual([{ type: 'on', note: 60 }]);
+  });
+  it('si todo esta silenciado no suena nada', () => {
+    const m = new NoteMapper();
+    m.setMuted([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    expect(m.process([{ type: 'on', note: 61 }])).toEqual([]);
+    expect(m.process([{ type: 'off', note: 61 }])).toEqual([]);
+  });
 });

@@ -14,6 +14,8 @@ export interface Engine {
   latency(): LatencyReport;
   /** Tonica (0..11) y escala a la que se cuantizan las notas. */
   setScale(tonic: number, scaleId: string): void;
+  /** Clases de altura (0..11) silenciadas en la salida. */
+  setMuted(pitchClasses: Iterable<number>): void;
   stop(): Promise<void>;
 }
 
@@ -66,6 +68,9 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
       },
       setScale(tonic, scaleId) {
         mapper.setScale(tonic, scaleId);
+      },
+      setMuted(pcs) {
+        mapper.setMuted(pcs);
       },
       setBend(semitones) {
         synth.setBend(semitones);

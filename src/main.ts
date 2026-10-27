@@ -2,8 +2,11 @@ import './style.css';
 import { toDb } from './audio/level';
 import { classifyMicError, isMicSupported, MIC_ERROR_MESSAGES } from './audio/mic-error';
 import { resolveDeviceId, toInputDevices } from './audio/constraints';
-import { midiToName, freqToMidi } from './notes';
-import { SCALES } from './scales';
+import { midiToName, freqToMidi, nearestNote, NOTE_NAMES } from './notes';
+import { SCALES, getScale } from './scales';
+import { suggestKey } from './key';
+import { PitchWheel } from './ui/wheel';
+import { MuteKeyboard } from './ui/keyboard';
 import { BEND_CENTER, BEND_MODES, BEND_TARGETS, bendAffects, bendForMode, type BendMode, type BendTarget, BEND_RANGE_DEFAULT, BEND_RANGE_MAX, BEND_RANGE_MIN, bendValue, clampBendRange } from './audio/bend';
 import { formatLatency } from './audio/latency';
 import { isMidiSupported, MidiOutput } from './midi/output';
@@ -32,6 +35,15 @@ if (app) {
         <select id="tonica" aria-label="Tonalidad">${['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((n, i) => `<option value="${i}">${n}</option>`).join('')}</select>
         <label for="escala">Escala</label>
         <select id="escala" aria-label="Escala">${SCALES.map((sc) => `<option value="${sc.id}">${sc.name}</option>`).join('')}</select>
+      </section>
+      <section aria-label="Sugerencia de tonalidad">
+        <p id="sugerencia">Canta unas notas para sugerir una tonalidad.</p>
+        <button id="aplicar-tonalidad" type="button" hidden>Aplicar</button>
+      </section>
+      <section aria-label="Afinacion" id="afinacion"></section>
+      <section aria-label="Notas permitidas">
+        <label>Notas permitidas (toca para silenciar)</label>
+        <div id="teclado"></div>
       </section>
       <section aria-label="Pitch bend">
         <label for="bend">Pitch bend a</label>
@@ -70,6 +82,30 @@ if (app) {
   tonicSel?.addEventListener('change', applyScale);
   scaleSel?.addEventListener('change', applyScale);
   let anchor: number | null = null;
+  const wheel = new PitchWheel();
+  app.querySelector('#afinacion')?.append(wheel.el);
+  const keyboard = new MuteKeyboard((muted) => engine?.setMuted(muted));
+  app.querySelector('#teclado')?.append(keyboard.el);
+  const keyWeights = new Array<number>(12).fill(0);
+  let keyNotes = 0;
+  const suggestEl = app.querySelector<HTMLParagraphElement>('#sugerencia');
+  const applyKeyBtn = app.querySelector<HTMLButtonElement>('#aplicar-tonalidad');
+  let suggested: ReturnType<typeof suggestKey> = null;
+  applyKeyBtn?.addEventListener('click', () => {
+    if (!suggested || !tonicSel || !scaleSel) return;
+    tonicSel.value = String(suggested.tonic);
+    scaleSel.value = suggested.scaleId;
+    applyScale();
+    refreshWheelScale();
+  });
+  let inScale: ReadonlySet<number> = new Set(Array.from({ length: 12 }, (_, i) => i));
+  const refreshWheelScale = (): void => {
+    const tonic = Number(tonicSel?.value ?? 0);
+    inScale = new Set(getScale(scaleSel?.value ?? 'chromatic').intervals.map((i) => (tonic + i) % 12));
+    wheel.update(null, 0, inScale);
+  };
+  tonicSel?.addEventListener('change', refreshWheelScale);
+  scaleSel?.addEventListener('change', refreshWheelScale);
   const rangeIn = app.querySelector<HTMLInputElement>('#rango');
   let heldNote: number | null = null;
   const bendRange = (): number => clampBendRange(Number(rangeIn?.value));
@@ -170,11 +206,29 @@ if (app) {
         const { startEngine } = await import('./audio/engine');
         engine = await startEngine(({ rms, freq, events }) => {
           meter.value = toDb(rms);
+          if (freq && freq > 0) {
+            const near = nearestNote(freq);
+            wheel.update(((near.note % 12) + 12) % 12, near.cents, inScale);
+          } else wheel.update(null, 0, inScale);
           for (const ev of events ?? []) {
             if (ev.type === 'on') {
               heldNote = ev.note;
+              keyboard.setActive(((ev.note % 12) + 12) % 12);
+              if (freq && freq > 0) {
+                const pc = (((nearestNote(freq).note % 12) + 12) % 12) as number;
+                keyWeights[pc] = (keyWeights[pc] ?? 0) + 1;
+                keyNotes++;
+                suggested = keyNotes >= 5 ? suggestKey(keyWeights) : null;
+                if (suggested && suggestEl && applyKeyBtn) {
+                  suggestEl.textContent = `Sugerencia: ${NOTE_NAMES[suggested.tonic]} ${suggested.scaleId === 'major' ? 'mayor' : 'menor'}`;
+                  applyKeyBtn.hidden = false;
+                }
+              }
               resetBend();
-            } else if (ev.note === heldNote) heldNote = null;
+            } else if (ev.note === heldNote) {
+              heldNote = null;
+              keyboard.setActive(null);
+            }
             midi?.send(ev);
             if (noteEl && ev.type === 'on') noteEl.textContent = midiToName(ev.note);
           }
@@ -184,6 +238,7 @@ if (app) {
         }, select?.value || undefined);
         engine.setSound(sound?.checked ?? true);
         applyScale();
+        engine.setMuted(keyboard.muted);
         void refreshDevices();
         if (latencyEl) latencyEl.textContent = formatLatency(engine.latency());
         button.textContent = 'Detener';

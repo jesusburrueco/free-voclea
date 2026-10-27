@@ -9,13 +9,25 @@ export class NoteMapper {
   /** Nota cuyo off se ha retenido hasta ver si el on siguiente cae en la misma nota. */
   private pendingOff: number | null = null;
 
+  private muted = new Set<number>();
+
+  /** Clases de altura (0..11) que no deben sonar: la voz se cuantiza a la nota permitida mas cercana. */
+  setMuted(pitchClasses: Iterable<number>): void {
+    this.muted = new Set([...pitchClasses].map((p) => ((Math.round(p) % 12) + 12) % 12));
+  }
+
   setScale(tonic: number, scaleId: string): void {
     this.tonic = ((Math.round(tonic) % 12) + 12) % 12;
     this.scaleId = getScale(scaleId).id;
   }
 
+  /** Nota de salida para una nota cruda, o NaN si todas las notas estan silenciadas. */
   map(note: number): number {
-    return this.scaleId === 'chromatic' ? note : quantizeToScale(note, this.tonic, getScale(this.scaleId));
+    if (this.scaleId === 'chromatic' && this.muted.size === 0) return note;
+    const base = getScale(this.scaleId);
+    const intervals = base.intervals.filter((i) => !this.muted.has((this.tonic + i) % 12));
+    if (intervals.length === 0) return Number.NaN;
+    return quantizeToScale(note, this.tonic, { ...base, intervals });
   }
 
   /** Procesa los eventos de una trama. */
@@ -29,6 +41,7 @@ export class NoteMapper {
         }
       } else {
         const q = this.map(ev.note);
+        if (Number.isNaN(q)) continue;
         if (this.pendingOff === q) {
           this.current = q;
           this.pendingOff = null;
