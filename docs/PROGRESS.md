@@ -10,6 +10,13 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 13:12
+- Tarea: auditoria semanal (diff de 7 dias).
+- Hallazgos: (1) worklet reserva memoria por informe y por golpe; (2) sin manejo de AudioContext interrumpido en iOS; (3) SPEC.md nombra marcas en URLs de fuentes. Sin otras violaciones de marca en codigo, manifest ni UI; objetivos tactiles >= 44px; sin codigo muerto evidente.
+- Arreglados: nada (ningun arreglo cabe en <30 lineas con test seguro).
+- Tareas creadas: 3 "AUDIT:" al principio de Fase 5.
+- Verificacion: build, test y e2e (23) ok.
+
 ## 2026-10-27 19:00
 - Tarea: Fase 1 "Sinte interno basico (osciladores + envolvente)".
 - Hecho: synth.ts (envelopeGain ADSR pura y Synth monofonico con oscilador triangulo), conectado en engine.ts a los note on/off del worklet, casilla "Sonido interno" y ultima nota detectada en la UI.
