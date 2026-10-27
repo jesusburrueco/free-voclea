@@ -2,7 +2,8 @@ import './style.css';
 import { toDb } from './audio/level';
 import { classifyMicError, isMicSupported, MIC_ERROR_MESSAGES } from './audio/mic-error';
 import { resolveDeviceId, toInputDevices } from './audio/constraints';
-import { midiToName } from './notes';
+import { midiToName, freqToMidi } from './notes';
+import { BEND_CENTER, BEND_RANGE_DEFAULT, BEND_RANGE_MAX, BEND_RANGE_MIN, bendSemitones, bendValue, clampBendRange } from './audio/bend';
 import { isMidiSupported, MidiOutput } from './midi/output';
 import type { Engine } from './audio/engine';
 
@@ -24,6 +25,11 @@ if (app) {
         <select id="puerto" aria-label="Puerto MIDI" disabled><option value="">Sin puerto</option></select>
         <p id="midi-estado" aria-live="polite"></p>
       </section>
+      <section aria-label="Pitch bend">
+        <label class="sonido"><input id="bend" type="checkbox" /> Pitch bend</label>
+        <label for="rango">Rango de bend (semitonos)</label>
+        <input id="rango" type="number" inputmode="numeric" min="${BEND_RANGE_MIN}" max="${BEND_RANGE_MAX}" step="1" value="${BEND_RANGE_DEFAULT}" />
+      </section>
       <p id="nota" aria-label="Nota detectada"></p>
       <p id="estado" role="status"></p>
     </main>
@@ -40,6 +46,27 @@ if (app) {
   const midiBtn = app.querySelector<HTMLButtonElement>('#midi');
   const portSel = app.querySelector<HTMLSelectElement>('#puerto');
   const midiStatus = app.querySelector<HTMLParagraphElement>('#midi-estado');
+
+  const bendBox = app.querySelector<HTMLInputElement>('#bend');
+  const rangeIn = app.querySelector<HTMLInputElement>('#rango');
+  let heldNote: number | null = null;
+  const bendRange = (): number => clampBendRange(Number(rangeIn?.value));
+  const applyBend = (freq: number): void => {
+    if (!bendBox?.checked || heldNote === null || freq <= 0) return;
+    const st = bendSemitones(freqToMidi(freq), heldNote, bendRange());
+    engine?.setBend(st);
+    midi?.sendBend(bendValue(st, bendRange()));
+  };
+  const resetBend = (): void => {
+    engine?.setBend(0);
+    midi?.sendBend(BEND_CENTER);
+  };
+  rangeIn?.addEventListener('change', () => {
+    rangeIn.value = String(bendRange());
+  });
+  bendBox?.addEventListener('change', () => {
+    if (!bendBox.checked) resetBend();
+  });
 
   const refreshPorts = (): void => {
     if (!midi || !portSel || !midiStatus) return;
@@ -108,6 +135,7 @@ if (app) {
       if (engine) {
         await engine.stop();
         engine = null;
+        heldNote = null;
         midi?.allNotesOff();
         meter.value = -100;
         button.textContent = 'Activar micro';
@@ -115,12 +143,17 @@ if (app) {
         hint.hidden = false;
       } else {
         const { startEngine } = await import('./audio/engine');
-        engine = await startEngine(({ rms, events }) => {
+        engine = await startEngine(({ rms, freq, events }) => {
           meter.value = toDb(rms);
           for (const ev of events ?? []) {
+            if (ev.type === 'on') {
+              heldNote = ev.note;
+              resetBend();
+            } else if (ev.note === heldNote) heldNote = null;
             midi?.send(ev);
             if (noteEl && ev.type === 'on') noteEl.textContent = midiToName(ev.note);
           }
+          applyBend(freq ?? 0);
           status.dataset['activo'] = '1';
           delete status.dataset['error'];
         }, select?.value || undefined);

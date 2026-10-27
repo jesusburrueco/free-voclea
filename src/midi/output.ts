@@ -1,3 +1,4 @@
+import { BEND_CENTER, bendMessage } from '../audio/bend';
 import type { NoteEvent } from '../audio/segmenter';
 
 export interface MidiPortInfo {
@@ -81,9 +82,17 @@ export class MidiOutput {
     out.send(noteMessage(ev, this.channel));
   }
 
+  /** Envia un valor de pitch bend de 14 bits (centro 8192). */
+  sendBend(value: number): void {
+    this.current()?.send(bendMessage(value, this.channel));
+  }
+
   allNotesOff(): void {
     const out = this.current();
-    if (out) for (const note of this.sounding) out.send(noteMessage({ type: 'off', note }, this.channel));
+    if (out) {
+      for (const note of this.sounding) out.send(noteMessage({ type: 'off', note }, this.channel));
+      if (this.sounding.size > 0) out.send(bendMessage(BEND_CENTER, this.channel));
+    }
     this.sounding.clear();
   }
 

@@ -60,6 +60,11 @@ export class Synth {
     this.gain = gain;
   }
 
+  /** Desviacion en semitonos de la nota viva, via detune del oscilador. */
+  setBend(semitones: number): void {
+    this.osc?.detune.setTargetAtTime(semitones * 100, this.ctx.currentTime, 0.01);
+  }
+
   noteOff(): void {
     const { osc, gain } = this;
     if (!osc || !gain) return;

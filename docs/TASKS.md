@@ -17,7 +17,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Cuantizacion a escala y tonalidad (todas las escalas de SPEC.md)
 - [x] Sinte interno basico (osciladores + envolvente) para oir el resultado
 - [x] Salida Web MIDI con deteccion de soporte y selector de puerto
-- [ ] Pitch bend continuo con rango configurable
+- [x] Pitch bend continuo con rango configurable
 - [ ] Medicion de latencia extremo a extremo y visualizacion en ajustes
 - [ ] Modos de pitch bend anclado y fiel (selector, nombres propios)
 - [ ] Bend activable por destino: melodia, acordes, ambos o ninguno

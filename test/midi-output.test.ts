@@ -44,7 +44,7 @@ describe('MidiOutput', () => {
     m.select('a');
     m.send({ type: 'on', note: 60 });
     m.select('b');
-    expect(sent['a']).toEqual([[0x90, 60, 100], [0x80, 60, 0]]);
+    expect(sent['a']).toEqual([[0x90, 60, 100], [0x80, 60, 0], [0xe0, 0, 64]]);
     m.send({ type: 'on', note: 62 });
     expect(sent['b']).toEqual([[0x90, 62, 100]]);
   });

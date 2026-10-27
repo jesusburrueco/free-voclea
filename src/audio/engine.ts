@@ -6,6 +6,8 @@ import { Synth } from './synth';
 export interface Engine {
   /** Activa o silencia el sinte interno. */
   setSound(on: boolean): void;
+  /** Desviacion de la voz respecto a la nota viva, en semitonos (0 para quitarla). */
+  setBend(semitones: number): void;
   stop(): Promise<void>;
 }
 
@@ -40,6 +42,9 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
       setSound(on) {
         sound = on;
         if (!on) synth.noteOff();
+      },
+      setBend(semitones) {
+        synth.setBend(semitones);
       },
       async stop() {
         node.port.onmessage = null;
