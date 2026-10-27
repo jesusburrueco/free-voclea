@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-27 13:00
+- Tarea: Fase 0 "Desbloqueo de AudioContext por gesto y pantalla de permisos de micro".
+- Hecho: AudioContext creado y reanudado antes de cualquier await (iOS), mic-error.ts (clasifica errores y mensajes), texto de permiso en UI, boton Reintentar, deteccion de navegador sin soporte.
+- Verificacion: build, test, lint y e2e ok (4 e2e), captura `artifacts/permiso.png`.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: "Banco de pruebas: test/fixtures con audio sintetico".
+- Bloqueos: ninguno.
+
 ## 2026-10-27 12:00
 - Tarea: Fase 0 "Pipeline de audio: getUserMedia + AudioWorklet con buffer circular, medidor de nivel en UI".
 - Hecho: RingBuffer y medidor de nivel (puros, con tests), capture-processor (worklet, `?worker&url`), engine.ts, boton Activar micro y `<meter>` en UI.
