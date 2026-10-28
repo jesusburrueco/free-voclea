@@ -48,14 +48,20 @@ function plan(rate: number): Plan {
   return p;
 }
 
+// Buffers de trabajo reutilizados para no reservar memoria en el worklet en cada golpe.
+const re = new Float32Array(FEATURE_LEN);
+const im = new Float32Array(FEATURE_LEN);
+const power = new Float32Array(FEATURE_LEN / 2);
+const logMel = new Float32Array(MEL_BANDS);
+
 /**
  * Vector de rasgos de un golpe: 12 MFCC (sin c0, asi no dependen del volumen),
  * cruces por cero y centroide espectral normalizado. `samples` debe tener FEATURE_LEN muestras.
+ * Si se pasa `out` (FEATURE_DIM elementos) se escribe ahi y no se reserva memoria.
  */
-export function extractFeatures(samples: Float32Array, rate: number): Float32Array {
+export function extractFeatures(samples: Float32Array, rate: number, out: Float32Array = new Float32Array(FEATURE_DIM)): Float32Array {
   const { window, filters, dct } = plan(rate);
-  const re = new Float32Array(FEATURE_LEN);
-  const im = new Float32Array(FEATURE_LEN);
+  im.fill(0);
   let crossings = 0;
   for (let i = 0; i < FEATURE_LEN; i++) {
     const v = samples[i] ?? 0;
@@ -64,7 +70,6 @@ export function extractFeatures(samples: Float32Array, rate: number): Float32Arr
   }
   fft(re, im);
   const bins = FEATURE_LEN / 2;
-  const power = new Float32Array(bins);
   let total = 0;
   let weighted = 0;
   for (let k = 0; k < bins; k++) {
@@ -72,17 +77,18 @@ export function extractFeatures(samples: Float32Array, rate: number): Float32Arr
     total += power[k] ?? 0;
     weighted += k * (power[k] ?? 0);
   }
-  const logMel = filters.map((f) => {
+  for (let b = 0; b < MEL_BANDS; b++) {
+    const f = filters[b];
     let e = 0;
-    for (let k = 0; k < bins; k++) e += (f[k] ?? 0) * (power[k] ?? 0);
-    return Math.log(e + 1e-10);
-  });
-  const out = new Float32Array(FEATURE_DIM);
-  dct.forEach((row, c) => {
+    for (let k = 0; k < bins; k++) e += (f?.[k] ?? 0) * (power[k] ?? 0);
+    logMel[b] = Math.log(e + 1e-10);
+  }
+  for (let c = 0; c < MFCC_COUNT; c++) {
+    const row = dct[c];
     let s = 0;
-    for (let b = 0; b < MEL_BANDS; b++) s += (row[b] ?? 0) * (logMel[b] ?? 0);
+    for (let b = 0; b < MEL_BANDS; b++) s += (row?.[b] ?? 0) * (logMel[b] ?? 0);
     out[c] = s / MEL_BANDS;
-  });
+  }
   out[MFCC_COUNT] = crossings / FEATURE_LEN;
   out[MFCC_COUNT + 1] = total > 0 ? weighted / total / bins : 0;
   return out;
@@ -91,8 +97,7 @@ export function extractFeatures(samples: Float32Array, rate: number): Float32Arr
 /** Centroide espectral en Hz de las ultimas FEATURE_LEN muestras (0 si hay silencio). */
 export function spectralCentroidHz(samples: Float32Array, rate: number): number {
   const { window } = plan(rate);
-  const re = new Float32Array(FEATURE_LEN);
-  const im = new Float32Array(FEATURE_LEN);
+  im.fill(0);
   const offset = samples.length - FEATURE_LEN;
   if (offset < 0) return 0;
   for (let i = 0; i < FEATURE_LEN; i++) re[i] = (samples[offset + i] ?? 0) * (window[i] ?? 0);

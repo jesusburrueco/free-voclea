@@ -91,6 +91,14 @@ describe('features + k-NN', () => {
     expect(a).toHaveLength(FEATURE_DIM);
     for (let i = 0; i < 12; i++) expect(a[i]).toBeCloseTo(b[i] ?? 0, 1);
   });
+  it('reutilizar buffers no altera el resultado y `out` se rellena', () => {
+    const x = snare(3, 0.5);
+    const first = Array.from(extractFeatures(x, RATE));
+    extractFeatures(hat(4, 0.9), RATE);
+    const out = new Float32Array(FEATURE_DIM);
+    expect(extractFeatures(x, RATE, out)).toBe(out);
+    expect(Array.from(out)).toEqual(first);
+  });
   it('clasifica bombo, caja y charles con ejemplos no vistos', () => {
     const knn = new KnnClassifier();
     const makers = [kick, snare, hat];

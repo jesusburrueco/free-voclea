@@ -30,4 +30,10 @@ describe('detectPitch (YIN)', () => {
   it('el silencio no da tono', () => {
     expect(detectPitch(new Float32Array(win), FIXTURE_RATE).freq).toBe(0);
   });
+  it('llamadas repetidas con tamanos distintos dan el mismo resultado (buffers reutilizados)', () => {
+    const a = sine(220, 0.5).subarray(0, win);
+    const first = detectPitch(a, FIXTURE_RATE);
+    detectPitch(sine(90, 0.5).subarray(0, win + 800), FIXTURE_RATE);
+    expect(detectPitch(a, FIXTURE_RATE)).toEqual(first);
+  });
 });

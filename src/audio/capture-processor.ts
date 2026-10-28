@@ -1,7 +1,7 @@
 import { RingBuffer } from './ring-buffer';
 import { measureLevel, toDb } from './level';
 import { OnsetDetector, dbToVelocity, sensitivityToRise } from '../beat/onset';
-import { FEATURE_LEN, extractFeatures, spectralCentroidHz } from '../beat/features';
+import { FEATURE_DIM, FEATURE_LEN, extractFeatures, spectralCentroidHz } from '../beat/features';
 import { KnnClassifier, type Example } from '../beat/knn';
 import { detectPitch, minWindow } from './pitch';
 import { NoteSegmenter } from './segmenter';
@@ -34,6 +34,7 @@ class CaptureProcessor extends AudioWorkletProcessor {
   private readonly onset = new OnsetDetector(sampleRate);
   private readonly knn = new KnnClassifier();
   private readonly hitWindow = new Float32Array(FEATURE_LEN);
+  private readonly hitFeatures = new Float32Array(FEATURE_DIM);
   private pending = -1;
   private armed: number | null = null;
   private triggersOn = true;
@@ -56,7 +57,7 @@ class CaptureProcessor extends AudioWorkletProcessor {
   /** Cierra la captura de un golpe: rasgos, velocidad y clasificacion (o ejemplo de entrenamiento). */
   private finishHit(): void {
     if (this.ring.readLatest(this.hitWindow) < FEATURE_LEN) return;
-    const vec = Array.from(extractFeatures(this.hitWindow, sampleRate));
+    const vec = Array.from(extractFeatures(this.hitWindow, sampleRate, this.hitFeatures));
     const velocity = dbToVelocity(toDb(measureLevel(this.hitWindow).peak));
     if (this.armed !== null) {
       this.port.postMessage({ kind: 'example', slot: this.armed, vec });

@@ -17,6 +17,10 @@ export function minWindow(rate: number, minFreq = 70): number {
   return Math.ceil((2 * rate) / minFreq);
 }
 
+// Buffers de trabajo reutilizados: el worklet llama aqui varias veces por segundo y no debe generar basura.
+let decimated = new Float32Array(0);
+let diffs = new Float32Array(0);
+
 /** Detector YIN monofonico. `buf` debe tener al menos `minWindow` muestras. */
 export function detectPitch(input: Float32Array, inputRate: number, opts: PitchOptions = {}): PitchResult {
   // A 32 kHz o mas se diezma por 2 (media de pares): el coste de YIN baja a la cuarta parte y la interpolacion parabolica mantiene la precision.
@@ -24,7 +28,9 @@ export function detectPitch(input: Float32Array, inputRate: number, opts: PitchO
   const rate = decimate ? inputRate / 2 : inputRate;
   let buf = input;
   if (decimate) {
-    buf = new Float32Array(input.length >> 1);
+    const n = input.length >> 1;
+    if (decimated.length < n) decimated = new Float32Array(n);
+    buf = decimated.subarray(0, n);
     for (let i = 0; i < buf.length; i++) buf[i] = ((input[2 * i] ?? 0) + (input[2 * i + 1] ?? 0)) * 0.5;
   }
   const { minFreq = 70, maxFreq = 1500, threshold = 0.12 } = opts;
@@ -35,7 +41,8 @@ export function detectPitch(input: Float32Array, inputRate: number, opts: PitchO
   if (tauMax <= tauMin + 1) return none;
 
   // Diferencia normalizada acumulada media, calculada de forma perezosa: se para en cuanto se encuentra el primer minimo bajo el umbral.
-  const d = new Float32Array(tauMax + 2).fill(1);
+  if (diffs.length < tauMax + 2) diffs = new Float32Array(tauMax + 2);
+  const d = diffs.subarray(0, tauMax + 2).fill(1);
   let running = 0;
   let computed = 0;
   const upTo = (t: number): number => {
