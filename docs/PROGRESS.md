@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-28 09:20
+- Tarea: Fase 5 "AUDIT: el worklet reserva memoria en cada informe".
+- Hecho: pitch.ts reutiliza buffers de diezmado y de diferencias; features.ts usa re/im/power/logMel de modulo y acepta `out` opcional; el worklet pasa un buffer propio. Tests de reutilizacion en pitch y rasgos. Sin medicion de GC real (no hay perfil de worklet aqui); queda solo el `Array.from` por golpe, necesario para el mensaje.
+- Verificacion: build, test (136), lint y e2e (23) ok; un fallo aislado en audio.spec.ts no se repitio (2 reejecuciones ok).
+- Preview Vercel: produccion no comprobada (red). El cambio no es visible en la UI.
+- Siguiente: "AUDIT: iOS puede dejar el AudioContext en estado interrupted/suspended".
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-10-27 13:12
 - Tarea: auditoria semanal (diff de 7 dias).
 - Hallazgos: (1) worklet reserva memoria por informe y por golpe; (2) sin manejo de AudioContext interrumpido en iOS; (3) SPEC.md nombra marcas en URLs de fuentes. Sin otras violaciones de marca en codigo, manifest ni UI; objetivos tactiles >= 44px; sin codigo muerto evidente.
