@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-10-29 09:10
+- Tarea: Fase 5 "AUDIT: iOS puede dejar el AudioContext en estado interrupted/suspended".
+- Hecho: context-state.ts (aviso puro por estado), engine escucha `statechange` y `visibilitychange` (reintenta resume al volver), expone `resume()`; boton "Reanudar audio" (44px) y mensaje en la UI. Test unitario y e2e que suspende el contexto y lo reanuda (`artifacts/contexto.png`).
+- Verificacion: build, test, lint y e2e (24) ok.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: "AUDIT: SPEC.md cita las marcas del producto original en las URLs de fuentes".
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-10-28 09:20
 - Tarea: Fase 5 "AUDIT: el worklet reserva memoria en cada informe".
 - Hecho: pitch.ts reutiliza buffers de diezmado y de diferencias; features.ts usa re/im/power/logMel de modulo y acepta `out` opcional; el worklet pasa un buffer propio. Tests de reutilizacion en pitch y rasgos. Sin medicion de GC real (no hay perfil de worklet aqui); queda solo el `Array.from` por golpe, necesario para el mensaje.
