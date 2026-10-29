@@ -7,6 +7,7 @@ import { OutputRouter, defaultOutputSettings, type OutEvent, type OutputSettings
 import { DrumKit } from './drums';
 import type { Example } from '../beat/knn';
 import { Synth, getPreset } from './synth';
+import type { ContextState } from './context-state';
 
 export interface TriggerHandlers {
   /** Golpe reconocido: indice de slot y velocidad MIDI. */
@@ -49,13 +50,15 @@ export interface Engine {
   setScale(tonic: number, scaleId: string): void;
   /** Clases de altura (0..11) silenciadas en la salida. */
   setMuted(pitchClasses: Iterable<number>): void;
+  /** Intenta reanudar el contexto (hay que llamarlo desde un gesto). */
+  resume(): Promise<void>;
   stop(): Promise<void>;
 }
 
 type TriggerMessage = { kind: 'hit'; slot: number; velocity: number } | { kind: 'example'; slot: number; vec: number[] };
 
 /** Abre el micro y conecta el worklet de captura. Debe llamarse desde un gesto del usuario. */
-export async function startEngine(onLevel: (level: Level) => void, deviceId?: string, triggers?: TriggerHandlers): Promise<Engine> {
+export async function startEngine(onLevel: (level: Level) => void, deviceId?: string, triggers?: TriggerHandlers, onContextState?: (state: ContextState) => void): Promise<Engine> {
   // iOS: el contexto debe crearse y reanudarse dentro del gesto, antes de cualquier await.
   const ctx = new AudioContext({ latencyHint: 'interactive' });
   const resumed = ctx.resume();
@@ -103,6 +106,15 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
     };
     const inputGain = ctx.createGain();
     source.connect(inputGain).connect(node);
+    // iOS puede dejar el contexto en suspended/interrupted (llamada, segundo plano).
+    const reportState = (): void => onContextState?.(ctx.state);
+    const onVisible = (): void => {
+      if (document.visibilityState !== 'visible') return;
+      if (ctx.state !== 'running') ctx.resume().catch(() => {});
+      reportState();
+    };
+    ctx.addEventListener('statechange', reportState);
+    document.addEventListener('visibilitychange', onVisible);
     return {
       setExamples(examples) {
         node.port.postMessage({ type: 'examples', examples });
@@ -175,7 +187,13 @@ export async function startEngine(onLevel: (level: Level) => void, deviceId?: st
         synth.setBend(parts.melody ? semitones : 0);
         chordSynth.setBend(parts.chords ? semitones : 0);
       },
+      async resume() {
+        await ctx.resume();
+        reportState();
+      },
       async stop() {
+        ctx.removeEventListener('statechange', reportState);
+        document.removeEventListener('visibilitychange', onVisible);
         node.port.onmessage = null;
         synth.dispose();
         chordSynth.dispose();

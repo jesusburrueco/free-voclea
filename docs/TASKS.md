@@ -50,7 +50,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 
 ## Fase 5. Pulido
 - [x] AUDIT: el worklet reserva memoria en cada informe (pitch.ts decima con `new Float32Array` y crea `d`; features.ts crea arrays y `Array.from` por golpe). Prealocar buffers reutilizables y medir GC
-- [ ] AUDIT: iOS puede dejar el AudioContext en estado `interrupted`/`suspended` (llamada, segundo plano). Escuchar `statechange` y `visibilitychange`, reanudar con un gesto y avisar en la UI; test e2e
+- [x] AUDIT: iOS puede dejar el AudioContext en estado `interrupted`/`suspended` (llamada, segundo plano). Escuchar `statechange` y `visibilitychange`, reanudar con un gesto y avisar en la UI; test e2e
 - [ ] AUDIT: SPEC.md cita las marcas del producto original en las URLs de fuentes. Decidir si se admite como bibliografia o se sustituye por descripciones neutras (regla de marca de CLAUDE.md)
 - [x] Auditoria de rendimiento en gama media Android (CPU del worklet < 30%)
 - [x] Accesibilidad y modo oscuro

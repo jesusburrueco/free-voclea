@@ -16,6 +16,7 @@ import { BEND_CENTER, BEND_MODES, BEND_TARGETS, bendAffects, bendForMode, type B
 import { formatLatency } from './audio/latency';
 import { isMidiSupported, MidiOutput } from './midi/output';
 import type { Engine } from './audio/engine';
+import { contextNotice } from './audio/context-state';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (app) {
@@ -47,6 +48,7 @@ if (app) {
           <button id="mic" class="mic" type="button">${icon(ICONS.mic)}<span id="mic-etiqueta">Activar micro</span></button>
         </div>
         <p id="estado" class="estado" role="status"></p>
+        <button id="reanudar" type="button" hidden>Reanudar audio</button>
         <meter id="nivel" min="-100" max="0" value="-100" aria-label="Nivel de entrada"></meter>
         <div class="lectura">
           <p id="nota" class="nota-grande" aria-label="Nota detectada"></p>
@@ -156,6 +158,7 @@ if (app) {
   const meter = app.querySelector<HTMLMeterElement>('#nivel');
   const status = app.querySelector<HTMLParagraphElement>('#estado');
   const hint = app.querySelector<HTMLParagraphElement>('#permiso');
+  const reanudar = app.querySelector<HTMLButtonElement>('#reanudar');
   const select = app.querySelector<HTMLSelectElement>('#entrada');
   const sound = app.querySelector<HTMLInputElement>('#sonido');
   const noteEl = app.querySelector<HTMLParagraphElement>('#nota');
@@ -370,6 +373,10 @@ if (app) {
     if (status) status.textContent = MIC_ERROR_MESSAGES.unsupported;
   }
 
+  reanudar?.addEventListener('click', () => {
+    void engine?.resume().catch(() => {});
+  });
+
   button?.addEventListener('click', async () => {
     if (!button || !meter || !status || !hint) return;
     button.disabled = true;
@@ -377,6 +384,7 @@ if (app) {
       if (engine) {
         await engine.stop();
         engine = null;
+        if (reanudar) reanudar.hidden = true;
         triggers.onEngineStop();
         heldNote = null;
         midi?.allNotesOff();
@@ -424,7 +432,12 @@ if (app) {
           for (const m of cc.update({ db: toDb(rms), centroidHz: centroid ?? 0, voiced: heldNote !== null })) midi?.sendCc(m.controller, m.value, m.channel);
           status.dataset['activo'] = '1';
           delete status.dataset['error'];
-        }, select?.value || undefined, { onHit: triggers.onHit, onExample: triggers.onExample });
+        }, select?.value || undefined, { onHit: triggers.onHit, onExample: triggers.onExample }, (state) => {
+          const notice = contextNotice(state);
+          if (reanudar) reanudar.hidden = !notice;
+          if (notice) status.textContent = notice.message;
+          else if (engine && state === 'running') status.textContent = 'Micro activo';
+        });
         triggers.onEngineStart();
         engine.setSound(sound?.checked ?? true);
         applyScale();
