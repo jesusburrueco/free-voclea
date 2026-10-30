@@ -2,6 +2,14 @@
 
 Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 
+## 2026-10-30 09:13
+- Tarea: Fase 5 "AUDIT: marcas del producto original en SPEC.md".
+- Hecho: decision de sustituir las URLs con marca por descripciones neutras de cada fuente (fabricante, revistas, webs) en docs/SPEC.md; ya no aparece ninguna marca en SPEC.md. Quedan menciones solo en CLAUDE.md, prompts/01-arranque.md y un test que las prohibe en el manifest (no tocados: CLAUDE.md es intocable).
+- Verificacion: build, test (138) y e2e (24) ok (e2e con CHROMIUM_PATH).
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: no quedan tareas `[ ]` en TASKS.md; anadir nuevas tareas o revisar el backlog.
+- Bloqueos: ninguno.
+
 ## AAAA-MM-DD HH:MM
 - Tarea:
 - Hecho:
