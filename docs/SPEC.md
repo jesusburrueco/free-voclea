@@ -5,21 +5,21 @@ Nombre del producto: PENDIENTE DE ELECCION. Propuestas: "Tarareo", "VozNota", "H
 Este documento lo completa el agente en la sesion de arranque a partir de fuentes publicas (manual oficial, pagina de producto, videos). Cada funcion lleva su fuente. Nada se describe a partir de binarios o codigo del producto original.
 
 Convenciones:
-- "el original" = el plugin de referencia citado en CLAUDE.md. Su marca solo aparece en las URLs de las fuentes.
+- "el original" = el plugin de referencia citado en CLAUDE.md. Su marca no aparece en este documento; las fuentes se describen de forma neutra.
 - "sin fuente" = la opcion existe pero su rango, valor por defecto o comportamiento exacto no esta documentado publicamente. Lo decidimos nosotros y lo marcamos como decision propia.
 - Cuando dos fuentes se contradicen se anotan ambas y se indica la decision.
 
 ## Fuentes
-- [F1] Tutorial oficial "Pitch and control settings": https://vochlea.com/learn/pitch-and-control-settings
-- [F2] Tutorial oficial "Chords": https://vochlea.com/learn/chords
-- [F3] Tutorial oficial "How to add triggers": https://vochlea.com/learn/how-to-add-triggers
-- [F4] Tutorial oficial "Tips for triggers": https://vochlea.com/learn/tips-for-triggers
-- [F5] Blog oficial "10 tips for getting started": https://vochlea.com/blog/10-tips-for-getting-started-with-dubler-2
-- [F6] Blog oficial "What's new": https://vochlea.com/blog/whats-new-with-dubler-2
-- [F7] Resena Sound On Sound: https://www.soundonsound.com/reviews/vochlea-dubler-2
-- [F8] Resena MusicTech: https://musictech.com/reviews/software-instruments/vochlea-dubler-2-review/
-- [F9] Resena Bonedo (aleman): https://www.bonedo.de/artikel/vochlea-music-dubler-2-test/
-- [F10] Tutoriales oficiales de latencia y calibracion: https://vochlea.com/learn/latency-2 , https://vochlea.com/learn/calibrating-your-mic-on-windows
+- [F1] Tutorial oficial del fabricante sobre ajustes de pitch y control (consultado 2026-10-27)
+- [F2] Tutorial oficial del fabricante sobre acordes (consultado 2026-10-27)
+- [F3] Tutorial oficial del fabricante sobre como anadir triggers (consultado 2026-10-27)
+- [F4] Tutorial oficial del fabricante con consejos para triggers (consultado 2026-10-27)
+- [F5] Blog oficial del fabricante, 10 consejos para empezar (consultado 2026-10-27)
+- [F6] Blog oficial del fabricante, novedades de la version 2 (consultado 2026-10-27)
+- [F7] Resena de la revista Sound On Sound (consultado 2026-10-27)
+- [F8] Resena de la web MusicTech (consultado 2026-10-27)
+- [F9] Resena de la web Bonedo (aleman) (consultado 2026-10-27)
+- [F10] Tutoriales oficiales del fabricante sobre latencia y calibracion del micro (consultado 2026-10-27)
 
 ## Plantilla por funcion
 ### <Nombre de la funcion>
