@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-12 09:10
+- Tarea: backlog sin `[ ]`; se anade en Fase 3 "Sugerencia de acordes para una melodia" (SPEC.md 4, sin implementar), partida en 2. Hecha la 1/2.
+- Hecho: src/chord-suggest.ts (triadas diatonicas, acorde por tramo por cobertura, raiz, nota inicial y grados principales; reparto por duracion) y test/chord-suggest.test.ts (15 tests).
+- Verificacion: build, test (153), lint y e2e (24) ok; un fallo puntual en triggers.spec.ts (grabar ejemplos) paso 3/3 al repetir, sin relacion con el cambio. Sin cambios de UI ni capturas nuevas.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: Sugerencia de acordes (2/2): UI que graba la melodia y muestra los acordes.
+- Bloqueos: ninguno. Vigilar flakiness de e2e/triggers.spec.ts:32.
+
 ## 2026-11-10 09:00
 - Tarea: auditoria semanal (diff de 7 dias).
 - Hallazgos: el unico commit de la semana (96d6639) es solo docs/PROGRESS.md; sin cambios de codigo, audio, UI ni marcas que revisar.
