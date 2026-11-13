@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-13 09:15
+- Tarea: Fase 3 "Sugerencia de acordes para una melodia (2/2)": UI.
+- Hecho: src/ui/chord-suggest-panel.ts (MelodyRecorder de note on/off a notas con duracion; tarjeta "Sugerir acordes" en la pestana Acordes con duracion por acorde 1/2/4 s, boton Grabar/Parar de 44px y lista de acordes con grado). Conectado a los eventos del detector en main.ts. Estado con aria-live (no role=status, chocaba con los e2e existentes).
+- Verificacion: build, test (158), lint y e2e (25) ok. El e2e usa un WAV sintetico (C E G C) via --use-file-for-fake-audio-capture; captura `artifacts/sugerir-acordes.png`.
+- Preview Vercel: produccion no comprobada (red, proxy 403).
+- Siguiente: no quedan tareas `[ ]`; probar en movil real (iOS y Android) y afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-12 09:10
 - Tarea: backlog sin `[ ]`; se anade en Fase 3 "Sugerencia de acordes para una melodia" (SPEC.md 4, sin implementar), partida en 2. Hecha la 1/2.
 - Hecho: src/chord-suggest.ts (triadas diatonicas, acorde por tramo por cobertura, raiz, nota inicial y grados principales; reparto por duracion) y test/chord-suggest.test.ts (15 tests).
