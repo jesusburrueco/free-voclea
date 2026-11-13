@@ -579,3 +579,27 @@ meter {
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 14%, transparent);
 }
+.sugeridos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.sugeridos li {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  min-height: 44px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+.sugeridos span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}

@@ -8,6 +8,7 @@ import { suggestKey } from './key';
 import { loadSettings, saveSettings, type AppSettings } from './settings';
 import { mountSetup } from './ui/setup';
 import { mountTriggers } from './ui/triggers';
+import { mountChordSuggest } from './ui/chord-suggest-panel';
 import { mountOutputPanel, type PanelState } from './ui/output-panel';
 import { CcMapper } from './audio/cc';
 import { PitchWheel } from './ui/wheel';
@@ -100,6 +101,7 @@ if (app) {
 
       <section class="panel" role="tabpanel" id="panel-acordes" aria-label="Panel de acordes" data-panel="acordes" hidden>
         <div class="tarjeta"><h2>Acordes</h2><p class="pista">Cada nota que cantas genera el acorde diatonico de ese grado.</p><div id="salida-acordes"></div></div>
+        <div class="tarjeta"><h2>Sugerir acordes</h2><p class="pista">Graba una melodia y te proponemos un acorde de la tonalidad elegida para cada tramo.</p><div id="sugerir-acordes"></div></div>
       </section>
 
       <section class="panel" role="tabpanel" id="panel-beatbox" aria-label="Panel de beatbox" data-panel="beatbox" hidden>
@@ -246,6 +248,7 @@ if (app) {
     wheel.update(null, 0, inScale);
   };
   tonicSel?.addEventListener('change', refreshWheelScale);
+  const chordSuggest = mountChordSuggest(app.querySelector<HTMLElement>('#sugerir-acordes') as HTMLElement, () => ({ tonic: Number(tonicSel?.value ?? 0), scaleId: scaleSel?.value ?? 'major' }));
   scaleSel?.addEventListener('change', refreshWheelScale);
   const rangeIn = app.querySelector<HTMLInputElement>('#rango');
   let heldNote: number | null = null;
@@ -404,6 +407,8 @@ if (app) {
             wheel.update(((near.note % 12) + 12) % 12, near.cents, inScale);
           } else wheel.update(null, 0, inScale);
           for (const ev of events ?? []) {
+            if (ev.type === 'on') chordSuggest.noteOn(ev.note);
+            else chordSuggest.noteOff(ev.note);
             if (ev.type === 'on') {
               heldNote = ev.note;
               keyboard.setActive(((ev.note % 12) + 12) % 12);

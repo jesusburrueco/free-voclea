@@ -43,7 +43,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Canales MIDI separados para melodia, acordes y CC
 - [x] Presets de sinte internos propios para melodia y acordes
 - [x] Sugerencia de acordes para una melodia (1/2): logica pura, un acorde diatonico por tramo, con tests
-- [ ] Sugerencia de acordes para una melodia (2/2): UI que graba la melodia cantada y muestra los acordes sugeridos, e2e 375x812
+- [x] Sugerencia de acordes para una melodia (2/2): UI que graba la melodia cantada y muestra los acordes sugeridos, e2e 375x812
 
 ## Fase 4. Configuracion y perfiles
 - [x] Perfiles guardados (IndexedDB), exportar/importar JSON
