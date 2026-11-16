@@ -12,7 +12,7 @@ Especificacion funcional: `docs/SPEC.md`. Backlog: `docs/TASKS.md`. Historial: `
 - Audio: Web Audio API + AudioWorklet. Toda la deteccion (pitch, onsets, clasificacion) corre en el worklet o en un Worker, nunca en el hilo principal.
 - Salida: sintetizador/sampler interno (siempre disponible) + Web MIDI cuando el navegador lo soporte. Safari/iOS no soporta Web MIDI: en iOS la app debe ser plenamente util solo con el sonido interno.
 - PWA instalable. Mobile-first: disenar a 375px, objetivos tactiles >= 44px, funcionar en vertical.
-- Deploy: Vercel desde GitHub. `main` = produccion. `claude/dev` = rama de trabajo del agente (preview).
+- Deploy: Vercel desde GitHub. claude/dev = produccion (free-voclea.vercel.app). main solo recibe merges manuales.
 
 ## Comandos
 - `npm run dev` / `npm run build` / `npm run test` / `npm run e2e`
