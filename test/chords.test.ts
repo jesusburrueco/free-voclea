@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildChord, chordScale, defaultChordOptions, degreeOf, scaleStep } from '../src/audio/chords';
+import { buildChord, chordScale, defaultChordOptions, degreeOf, mappedDegree, scaleStep } from '../src/audio/chords';
 
 const opts = (o: Partial<typeof defaultChordOptions>) => ({ ...defaultChordOptions, ...o });
 
@@ -40,5 +40,47 @@ describe('acordes diatonicos', () => {
   it('scaleStep cruza octavas', () => {
     expect(scaleStep(71, 0, [0, 2, 4, 5, 7, 9, 11], 2)).toBe(74);
     expect(scaleStep(60, 0, [0, 2, 4, 5, 7, 9, 11], -1)).toBe(59);
+  });
+});
+
+describe('presets de mapeo Pop', () => {
+  const pc = (ns: number[]) => ns.map((n) => n % 12);
+  it('Triadas no cambia el acorde', () => {
+    expect(buildChord(62, 0, 'major', opts({ mapping: 'triads' }))).toEqual([62, 65, 69]);
+  });
+  it('Pop en Do mayor: cantar Re da Sol mayor por debajo', () => {
+    expect(buildChord(62, 0, 'major', opts({ mapping: 'pop' }))).toEqual([55, 59, 62]);
+    expect(buildChord(64, 0, 'major', opts({ mapping: 'pop' }))).toEqual([57, 60, 64]);
+    expect(buildChord(60, 0, 'major', opts({ mapping: 'pop' }))).toEqual([60, 64, 67]);
+  });
+  it('Pop avanzado en Do mayor usa ii y vi', () => {
+    expect(buildChord(62, 0, 'major', opts({ mapping: 'popPlus' }))).toEqual([62, 65, 69]);
+    expect(buildChord(60, 0, 'major', opts({ mapping: 'popPlus' }))).toEqual([57, 60, 64]);
+  });
+  it('Pop en La menor: cantar Sol da Sol mayor (VII)', () => {
+    expect(buildChord(67, 9, 'minor', opts({ mapping: 'pop' }))).toEqual([67, 71, 74]);
+    expect(buildChord(72, 9, 'minor', opts({ mapping: 'pop' }))).toEqual([65, 69, 72]);
+  });
+  it('cada acorde contiene la nota cantada en mayor y menor', () => {
+    for (const mapping of ['pop', 'popPlus'] as const) {
+      for (const [scale, tonic] of [['major', 0], ['minor', 9], ['major', 7]] as const) {
+        const { intervals } = chordScale(scale);
+        for (const iv of intervals) {
+          const note = 60 + ((tonic + iv) % 12);
+          const chord = buildChord(note, tonic, scale, opts({ mapping }));
+          expect(pc(chord)).toContain(note % 12);
+          expect(Math.max(...chord)).toBeLessThanOrEqual(note + 7);
+          expect(Math.min(...chord)).toBeGreaterThan(note - 12);
+        }
+      }
+    }
+  });
+  it('fuera de mayor y menor el preset se ignora', () => {
+    expect(mappedDegree(1, 'dorian', 'pop')).toBe(1);
+    expect(buildChord(62, 0, 'dorian', opts({ mapping: 'pop' }))).toEqual(buildChord(62, 0, 'dorian'));
+  });
+  it('variante y bajo siguen al acorde elegido', () => {
+    const v = opts({ mapping: 'pop', bass: 'follow', variants: ['auto', 'auto', 'auto', 'auto', 'seventh', 'auto', 'auto'] });
+    expect(buildChord(62, 0, 'major', v)).toEqual([43, 55, 59, 62, 65]);
   });
 });

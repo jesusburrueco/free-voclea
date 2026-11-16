@@ -44,6 +44,8 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Presets de sinte internos propios para melodia y acordes
 - [x] Sugerencia de acordes para una melodia (1/2): logica pura, un acorde diatonico por tramo, con tests
 - [x] Sugerencia de acordes para una melodia (2/2): UI que graba la melodia cantada y muestra los acordes sugeridos, e2e 375x812
+- [x] Presets de mapeo de acordes Pop y Pop avanzado (1/2): tablas propias para mayor y menor en buildChord y saneado del ajuste, con tests
+- [ ] Presets de mapeo de acordes Pop y Pop avanzado (2/2): selector de preset en la pestana Acordes y guardado en perfil, e2e 375x812
 
 ## Fase 4. Configuracion y perfiles
 - [x] Perfiles guardados (IndexedDB), exportar/importar JSON

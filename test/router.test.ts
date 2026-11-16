@@ -52,5 +52,11 @@ describe('OutputRouter', () => {
     expect(s.chord.variants.slice(0, 3)).toEqual(['seventh', 'auto', 'auto']);
     expect(s.chord.voicing).toBe('close');
     expect(s.chord.inversion).toBe(2);
+    expect(s.chord.mapping).toBe('triads');
+  });
+  it('conserva el preset de mapeo de acordes valido', () => {
+    expect(sanitizeOutputSettings({ chord: { mapping: 'pop' } as never }).chord.mapping).toBe('pop');
+    expect(sanitizeOutputSettings({ chord: { mapping: 'popPlus' } as never }).chord.mapping).toBe('popPlus');
+    expect(sanitizeOutputSettings({ chord: { mapping: 'jazz' } as never }).chord.mapping).toBe('triads');
   });
 });

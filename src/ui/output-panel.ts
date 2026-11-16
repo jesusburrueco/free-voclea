@@ -134,6 +134,7 @@ export function mountOutputPanel(hosts: PanelHosts, onChange: (state: PanelState
       melodyChannel: n('o-canal-mel'),
       chordChannel: n('o-canal-ac'),
       chord: {
+        mapping: state.output.chord.mapping,
         inversion: Number(el<HTMLSelectElement>('o-inv').value) as 0 | 1 | 2,
         voicing: el<HTMLSelectElement>('o-ap').value as 'close' | 'open',
         bass: el<HTMLSelectElement>('o-bajo').value as 'off' | 'follow' | 'fixed',

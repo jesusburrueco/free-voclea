@@ -3,6 +3,30 @@ import { SCALES, getScale, type Scale } from '../scales';
 /** 'auto' = triada. */
 export type ChordVariant = 'auto' | 'seventh' | 'sus2' | 'sus4';
 export type Voicing = 'close' | 'open';
+/** Como se elige el acorde para cada nota cantada. Pop y Pop avanzado solo cambian algo en Mayor y Menor natural. */
+export type ChordMapping = 'triads' | 'pop' | 'popPlus';
+
+export const CHORD_MAPPINGS: readonly { id: ChordMapping; name: string }[] = [
+  { id: 'triads', name: 'Triadas' },
+  { id: 'pop', name: 'Pop' },
+  { id: 'popPlus', name: 'Pop avanzado' },
+];
+
+/**
+ * Tablas propias: grado cantado (0..6) -> grado del acorde. Cada acorde contiene la nota cantada.
+ * Pop usa solo los acordes mas comunes (I IV V vi en mayor; i iv v VI VII en menor);
+ * Pop avanzado anade ii, iii y III y evita repetir el acorde de tonica.
+ */
+const MAPPING_TABLES: Record<'pop' | 'popPlus', Record<'major' | 'minor', readonly number[]>> = {
+  pop: { major: [0, 4, 5, 3, 0, 3, 4], minor: [0, 4, 5, 3, 0, 5, 6] },
+  popPlus: { major: [5, 1, 2, 3, 0, 1, 4], minor: [5, 6, 2, 3, 4, 3, 2] },
+};
+
+/** Grado del acorde que corresponde al grado cantado segun el preset de mapeo. */
+export function mappedDegree(degree: number, scaleId: string, mapping: ChordMapping): number {
+  if (mapping === 'triads' || (scaleId !== 'major' && scaleId !== 'minor')) return degree;
+  return MAPPING_TABLES[mapping][scaleId][degree] ?? degree;
+}
 
 export const CHORD_VARIANTS: readonly { id: ChordVariant; name: string }[] = [
   { id: 'auto', name: 'Triada' },
@@ -12,6 +36,8 @@ export const CHORD_VARIANTS: readonly { id: ChordVariant; name: string }[] = [
 ];
 
 export interface ChordOptions {
+  /** Preset de mapeo de nota cantada a acorde. */
+  mapping: ChordMapping;
   /** Variante por grado (0..6) de la escala de acordes. */
   variants: readonly ChordVariant[];
   /** 0 = estado fundamental, 1 y 2 = inversiones. */
@@ -24,6 +50,7 @@ export interface ChordOptions {
 }
 
 export const defaultChordOptions: ChordOptions = {
+  mapping: 'triads',
   variants: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
   inversion: 0,
   voicing: 'close',
@@ -72,7 +99,11 @@ const CHORD_STEPS: Record<ChordVariant, number[]> = { auto: [0, 2, 4], seventh: 
 /** Notas MIDI (ascendentes) del acorde diatonico sobre `note`, con variante, inversion, apertura y bajo. */
 export function buildChord(note: number, tonic: number, scaleId: string, opts: ChordOptions = defaultChordOptions): number[] {
   const { intervals } = chordScale(scaleId);
-  const { root, degree } = degreeOf(note, tonic, intervals);
+  const sung = degreeOf(note, tonic, intervals);
+  const degree = mappedDegree(sung.degree, scaleId, opts.mapping ?? 'triads');
+  // Raiz del acorde elegido en la octava igual o inferior a la nota cantada.
+  const diff = degree - sung.degree;
+  const root = diff > 0 ? scaleStep(sung.root, tonic, intervals, diff - 7) : scaleStep(sung.root, tonic, intervals, diff);
   const variant = opts.variants[degree] ?? 'auto';
   const steps = CHORD_STEPS[variant];
   let notes = steps.map((s) => scaleStep(root, tonic, intervals, s)).sort((a, b) => a - b);

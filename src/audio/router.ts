@@ -58,6 +58,7 @@ export function sanitizeOutputSettings(raw: Partial<OutputSettings> | null | und
     melodyChannel: clamp(r.melodyChannel ?? d.melodyChannel, 1, 16),
     chordChannel: clamp(r.chordChannel ?? d.chordChannel, 1, 16),
     chord: {
+      mapping: c.mapping === 'pop' || c.mapping === 'popPlus' ? c.mapping : 'triads',
       variants: d.chord.variants.map((v, i) => {
         const x = c.variants?.[i];
         return x === 'seventh' || x === 'sus2' || x === 'sus4' || x === 'auto' ? x : v;
