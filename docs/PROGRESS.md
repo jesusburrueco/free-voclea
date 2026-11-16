@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-16 09:15
+- Tarea: backlog sin `[ ]`; se anade en Fase 3 "Presets de mapeo de acordes Pop y Pop avanzado" (SPEC.md 4, sin implementar), partida en 2. Hecha la 1/2.
+- Hecho: src/audio/chords.ts con `ChordMapping` (triads, pop, popPlus), tablas propias para Mayor y Menor natural (el acorde contiene la nota cantada, raiz en la octava igual o inferior) y `mappedDegree`; saneado en router.ts; output-panel conserva el preset hasta tener selector. 8 tests nuevos.
+- Verificacion: build, test (166), lint y e2e (25) ok. Sin cambios de UI ni capturas nuevas.
+- Preview Vercel: produccion no comprobada (red, proxy 403).
+- Siguiente: Presets de mapeo Pop (2/2): selector en la pestana Acordes y guardado en perfil, e2e 375x812.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-13 09:15
 - Tarea: Fase 3 "Sugerencia de acordes para una melodia (2/2)": UI.
 - Hecho: src/ui/chord-suggest-panel.ts (MelodyRecorder de note on/off a notas con duracion; tarjeta "Sugerir acordes" en la pestana Acordes con duracion por acorde 1/2/4 s, boton Grabar/Parar de 44px y lista de acordes con grado). Conectado a los eventos del detector en main.ts. Estado con aria-live (no role=status, chocaba con los e2e existentes).
