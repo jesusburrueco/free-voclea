@@ -53,6 +53,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Todas las opciones de SPEC.md accesibles desde UI movil
 
 ## Fase 5. Pulido
+- [ ] AUDIT: MelodyRecorder (src/ui/chord-suggest-panel.ts) descarta los silencios, asi que los tramos de "Duracion de cada acorde" se miden sobre tiempo cantado y no sobre tiempo real: con pausas los acordes se desplazan respecto a la melodia. Registrar los silencios como tramos sin nota (que no cuenten en el encaje y repitan el acorde anterior) y probarlo en chord-suggest y en el panel
 - [x] AUDIT: el worklet reserva memoria en cada informe (pitch.ts decima con `new Float32Array` y crea `d`; features.ts crea arrays y `Array.from` por golpe). Prealocar buffers reutilizables y medir GC
 - [x] AUDIT: iOS puede dejar el AudioContext en estado `interrupted`/`suspended` (llamada, segundo plano). Escuchar `statechange` y `visibilitychange`, reanudar con un gesto y avisar en la UI; test e2e
 - [x] AUDIT: SPEC.md cita las marcas del producto original en las URLs de fuentes. Decidir si se admite como bibliografia o se sustituye por descripciones neutras (regla de marca de CLAUDE.md)

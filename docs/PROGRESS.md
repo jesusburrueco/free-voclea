@@ -42,6 +42,16 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente: Sugerencia de acordes (2/2): UI que graba la melodia y muestra los acordes.
 - Bloqueos: ninguno. Vigilar flakiness de e2e/triggers.spec.ts:32.
 
+## 2026-11-17 09:00
+- Tarea: auditoria semanal (diff de 7 dias, 10 commits: sugerencia de acordes y presets de mapeo Pop).
+- Hallazgos: sin cambios en el worklet ni en el motor; la grabacion de melodia corre en el hilo principal pero solo apila eventos (coste minimo). Sin marcas nuevas ni rayas largas.
+- Hallazgos: tablas Pop/Pop avanzado revisadas grado a grado, cada acorde contiene la nota cantada; tests cubren mapeo, raiz por debajo y saneado.
+- Hallazgos: MelodyRecorder ignora los silencios, los tramos de acorde se desplazan respecto al tiempo real si hay pausas.
+- Hallazgos: UI nueva con objetivos >= 44px (button/select globales, chips .sugeridos 44px); e2e a 375x812 cubre ambas pantallas.
+- Arreglados: nada (el arreglo de silencios toca logica y UI, no cabe como cambio pequeno seguro).
+- Tareas creadas: 1 "AUDIT:" al principio de Fase 5 (silencios en la sugerencia de acordes).
+- Verificacion: build, test (166) y e2e (26) ok.
+
 ## 2026-11-10 09:00
 - Tarea: auditoria semanal (diff de 7 dias).
 - Hallazgos: el unico commit de la semana (96d6639) es solo docs/PROGRESS.md; sin cambios de codigo, audio, UI ni marcas que revisar.
