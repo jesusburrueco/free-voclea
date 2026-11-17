@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-17 09:15
+- Tarea: Fase 3 "Presets de mapeo de acordes Pop y Pop avanzado (2/2)": selector y perfil.
+- Hecho: selector "Mapeo de acordes" (Triadas, Pop, Pop avanzado) con pista en la pestana Acordes de src/ui/output-panel.ts; se guarda en localStorage `salida` y, por tanto, en el perfil. Nuevo e2e/mapeo-acordes.spec.ts.
+- Verificacion: build, test (166), lint y e2e (26) ok; captura `artifacts/mapeo-acordes.png`.
+- Preview Vercel: produccion no comprobada (red, proxy 403).
+- Siguiente: no quedan tareas `[ ]`; probar en movil real (iOS y Android) y afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-16 09:15
 - Tarea: backlog sin `[ ]`; se anade en Fase 3 "Presets de mapeo de acordes Pop y Pop avanzado" (SPEC.md 4, sin implementar), partida en 2. Hecha la 1/2.
 - Hecho: src/audio/chords.ts con `ChordMapping` (triads, pop, popPlus), tablas propias para Mayor y Menor natural (el acorde contiene la nota cantada, raiz en la octava igual o inferior) y `mappedDegree`; saneado en router.ts; output-panel conserva el preset hasta tener selector. 8 tests nuevos.
