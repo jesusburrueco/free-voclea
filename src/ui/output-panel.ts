@@ -1,4 +1,4 @@
-import { CHORD_VARIANTS, type ChordVariant } from '../audio/chords';
+import { CHORD_MAPPINGS, CHORD_VARIANTS, type ChordMapping, type ChordVariant } from '../audio/chords';
 import { sanitizeCcSettings, type CcSettings } from '../audio/cc';
 import { sanitizeOutputSettings, type OutputSettings } from '../audio/router';
 import { SYNTH_PRESETS } from '../audio/synth';
@@ -19,6 +19,7 @@ export interface PanelState {
 }
 
 const presetOptions = SYNTH_PRESETS.map((p) => `<option value="${p.id}">${p.name}</option>`).join('');
+const mappingOptions = CHORD_MAPPINGS.map((m) => `<option value="${m.id}">${m.name}</option>`).join('');
 const variantOptions = CHORD_VARIANTS.map((v) => `<option value="${v.id}">${v.name}</option>`).join('');
 
 function load(): PanelState {
@@ -70,6 +71,9 @@ export function mountOutputPanel(hosts: PanelHosts, onChange: (state: PanelState
     </div>
     <label for="o-preset-ac">Sonido interno de los acordes</label>
     <select id="o-preset-ac">${presetOptions}</select>
+    <label for="o-mapeo">Mapeo de acordes</label>
+    <select id="o-mapeo" aria-describedby="o-mapeo-pista">${mappingOptions}</select>
+    <p id="o-mapeo-pista" class="pista">Pop y Pop avanzado eligen acordes comunes que contienen la nota cantada. Solo cambian algo en Mayor y Menor natural.</p>
     <label for="o-inv">Inversion</label>
     <select id="o-inv"><option value="0">Fundamental</option><option value="1">Primera</option><option value="2">Segunda</option></select>
     <label for="o-ap">Apertura</label>
@@ -108,6 +112,7 @@ export function mountOutputPanel(hosts: PanelHosts, onChange: (state: PanelState
     el<HTMLInputElement>('o-canal-ac').value = String(o.chordChannel);
     el<HTMLSelectElement>('o-preset-mel').value = state.presets.melody;
     el<HTMLSelectElement>('o-preset-ac').value = state.presets.chord;
+    el<HTMLSelectElement>('o-mapeo').value = o.chord.mapping;
     el<HTMLSelectElement>('o-inv').value = String(o.chord.inversion);
     el<HTMLSelectElement>('o-ap').value = o.chord.voicing;
     el<HTMLSelectElement>('o-bajo').value = o.chord.bass;
@@ -134,7 +139,7 @@ export function mountOutputPanel(hosts: PanelHosts, onChange: (state: PanelState
       melodyChannel: n('o-canal-mel'),
       chordChannel: n('o-canal-ac'),
       chord: {
-        mapping: state.output.chord.mapping,
+        mapping: el<HTMLSelectElement>('o-mapeo').value as ChordMapping,
         inversion: Number(el<HTMLSelectElement>('o-inv').value) as 0 | 1 | 2,
         voicing: el<HTMLSelectElement>('o-ap').value as 'close' | 'open',
         bass: el<HTMLSelectElement>('o-bajo').value as 'off' | 'follow' | 'fixed',
