@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-18 09:15
+- Tarea: Fase 5 "AUDIT: MelodyRecorder descarta los silencios".
+- Hecho: `MelodyNote.note` admite `null` (silencio). MelodyRecorder guarda los huecos entre notas como silencios (no el de antes de la primera ni despues de la ultima); chordForSegment no los cuenta en el encaje, un tramo solo de silencio repite el acorde anterior y suggestChords recorta silencios iniciales y finales. 6 tests nuevos.
+- Verificacion: build, test (172), lint y e2e (26) ok. Sin cambios visuales de UI ni capturas nuevas.
+- Preview Vercel: produccion no comprobada (red, proxy 403).
+- Siguiente: no quedan tareas `[ ]`; probar en movil real (iOS y Android) y afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-17 09:15
 - Tarea: Fase 3 "Presets de mapeo de acordes Pop y Pop avanzado (2/2)": selector y perfil.
 - Hecho: selector "Mapeo de acordes" (Triadas, Pop, Pop avanzado) con pista en la pestana Acordes de src/ui/output-panel.ts; se guarda en localStorage `salida` y, por tanto, en el perfil. Nuevo e2e/mapeo-acordes.spec.ts.
