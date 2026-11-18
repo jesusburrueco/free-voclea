@@ -66,6 +66,22 @@ describe('suggestChords', () => {
     const melody: MelodyNote[] = [...q([69, 72]), { note: 61, dur: 0 }, ...q([76, 72])];
     expect(suggestChords(melody, 0, 'major', 2).map((c) => c.name)).toEqual(['Am', 'C']);
   });
+  it('un tramo solo de silencio repite el acorde anterior', () => {
+    const melody: MelodyNote[] = [...q([60, 64]), { note: null, dur: 2 }, ...q([65, 69])];
+    expect(suggestChords(melody, 0, 'major', 2).map((c) => c.roman)).toEqual(['I', 'I', 'IV']);
+  });
+  it('los silencios no cuentan en el encaje', () => {
+    const c = chordForSegment([{ note: 69, dur: 1 }, { note: null, dur: 3 }], 0, 'major');
+    expect(c).toMatchObject({ name: 'Am', fit: 1 });
+  });
+  it('recorta silencios al principio y al final', () => {
+    const melody: MelodyNote[] = [{ note: null, dur: 4 }, ...q([65, 69]), { note: null, dur: 4 }];
+    expect(suggestChords(melody, 0, 'major', 2).map((c) => c.roman)).toEqual(['IV']);
+    expect(suggestChords([{ note: null, dur: 3 }], 0, 'major', 2)).toEqual([]);
+  });
+  it('splitByDuration conserva los silencios', () => {
+    expect(splitByDuration([{ note: 60, dur: 1 }, { note: null, dur: 2 }], 2)).toEqual([[{ note: 60, dur: 1 }, { note: null, dur: 1 }], [{ note: null, dur: 1 }]]);
+  });
   it('melodia vacia no sugiere nada', () => {
     expect(suggestChords([], 0, 'major', 4)).toEqual([]);
   });

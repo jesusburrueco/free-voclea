@@ -1,9 +1,15 @@
 import { suggestChords, type MelodyNote } from '../chord-suggest';
 
-/** Graba la melodia como notas con duracion a partir de eventos note on/off con tiempo en segundos. */
+/**
+ * Graba la melodia como notas con duracion a partir de eventos note on/off con tiempo en segundos.
+ * Los huecos entre notas se guardan como silencios (`note: null`) para que los tramos sigan el tiempo real;
+ * el silencio antes de la primera nota y despues de la ultima no se guarda.
+ */
 export class MelodyRecorder {
   private notes: MelodyNote[] = [];
   private held: { note: number; t: number } | null = null;
+  /** Fin de la ultima nota cerrada, o null si aun no hay ninguna. */
+  private lastEnd: number | null = null;
   private active = false;
 
   get recording(): boolean {
@@ -13,12 +19,14 @@ export class MelodyRecorder {
   start(): void {
     this.notes = [];
     this.held = null;
+    this.lastEnd = null;
     this.active = true;
   }
 
   noteOn(note: number, t: number): void {
     if (!this.active) return;
     this.close(t);
+    if (this.lastEnd !== null && t > this.lastEnd) this.notes.push({ note: null, dur: t - this.lastEnd });
     this.held = { note, t };
   }
 
@@ -37,7 +45,10 @@ export class MelodyRecorder {
   private close(t: number): void {
     if (!this.held) return;
     const dur = t - this.held.t;
-    if (dur > 0) this.notes.push({ note: this.held.note, dur });
+    if (dur > 0) {
+      this.notes.push({ note: this.held.note, dur });
+      this.lastEnd = t;
+    }
     this.held = null;
   }
 }
@@ -77,7 +88,7 @@ export function mountChordSuggest(root: HTMLElement, key: () => { tonic: number;
     btn.textContent = 'Grabar melodia';
     btn.setAttribute('aria-pressed', 'false');
     const { tonic, scaleId } = key();
-    const chords = notes.length > 0 ? suggestChords(notes, tonic, scaleId, Number(seg?.value ?? 2)) : [];
+    const chords = notes.some((n) => n.note !== null) ? suggestChords(notes, tonic, scaleId, Number(seg?.value ?? 2)) : [];
     if (chords.length === 0) {
       status.textContent = 'No se detectaron notas. Activa el micro y vuelve a probar.';
       return;

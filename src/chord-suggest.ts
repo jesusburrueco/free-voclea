@@ -1,10 +1,18 @@
 import { chordScale, scaleStep } from './audio/chords';
 import { NOTE_NAMES } from './notes';
 
-/** Nota de una melodia: MIDI y duracion (cualquier unidad, solo importa la proporcion). */
+/**
+ * Nota de una melodia: MIDI y duracion (cualquier unidad, solo importa la proporcion).
+ * `note: null` es un silencio: ocupa tiempo en los tramos pero no cuenta en el encaje.
+ */
 export interface MelodyNote {
-  note: number;
+  note: number | null;
   dur: number;
+}
+
+/** Duracion sonora (sin silencios) de un tramo. */
+function soundingDur(segment: readonly MelodyNote[]): number {
+  return segment.reduce((a, n) => a + (n.note === null ? 0 : Math.max(0, n.dur)), 0);
 }
 
 export type ChordQuality = 'maj' | 'min' | 'dim' | 'aug';
@@ -52,17 +60,18 @@ function describe(degree: number, rootPc: number, quality: ChordQuality, fit: nu
   return { degree, rootPc, quality, name: (NOTE_NAMES[rootPc] ?? '?') + SUFFIX[quality], roman, fit };
 }
 
-/** Acorde diatonico que mejor encaja con un tramo de melodia, o null si el tramo no tiene duracion. */
+/** Acorde diatonico que mejor encaja con un tramo de melodia, o null si el tramo no tiene notas sonando. */
 export function chordForSegment(segment: readonly MelodyNote[], tonic: number, scaleId: string): ChordSuggestion | null {
-  const total = segment.reduce((a, n) => a + Math.max(0, n.dur), 0);
+  const total = soundingDur(segment);
   if (total <= 0) return null;
-  const first = segment.find((n) => n.dur > 0);
+  const first = segment.find((n) => n.note !== null && n.dur > 0);
   let best: ChordSuggestion | null = null;
   let bestScore = -Infinity;
   for (const t of diatonicTriads(tonic, scaleId)) {
     let covered = 0;
     let rootWeight = 0;
     for (const n of segment) {
+      if (n.note === null) continue;
       const d = Math.max(0, n.dur);
       const pc = pcOf(n.note);
       if (t.pcs.includes(pc)) covered += d;
@@ -70,7 +79,7 @@ export function chordForSegment(segment: readonly MelodyNote[], tonic: number, s
     }
     const fit = covered / total;
     // Cobertura, luego raiz presente, nota inicial dentro del acorde y grados principales.
-    const startsIn = first !== undefined && t.pcs.includes(pcOf(first.note)) ? 0.05 : 0;
+    const startsIn = first?.note != null && t.pcs.includes(pcOf(first.note)) ? 0.05 : 0;
     const score = fit + 0.1 * (rootWeight / total) + startsIn + (DEGREE_BONUS[t.degree] ?? 0);
     if (score > bestScore) {
       bestScore = score;
@@ -105,10 +114,18 @@ export function splitByDuration(notes: readonly MelodyNote[], segmentDur: number
   return out;
 }
 
-/** Un acorde sugerido por tramo de `segmentDur`. Los tramos sin duracion repiten el acorde anterior. */
+/**
+ * Un acorde sugerido por tramo de `segmentDur`. Los tramos sin notas (solo silencio) repiten el acorde anterior;
+ * los silencios iniciales y finales se recortan para que la lista empiece y acabe en la melodia.
+ */
 export function suggestChords(notes: readonly MelodyNote[], tonic: number, scaleId: string, segmentDur: number): ChordSuggestion[] {
+  const sounding = (n: MelodyNote): boolean => n.note !== null && n.dur > 0;
+  const from = notes.findIndex(sounding);
+  if (from < 0) return [];
+  let to = notes.length - 1;
+  while (to > from && !sounding(notes[to] as MelodyNote)) to--;
   const out: ChordSuggestion[] = [];
-  for (const seg of splitByDuration(notes, segmentDur)) {
+  for (const seg of splitByDuration(notes.slice(from, to + 1), segmentDur)) {
     const c = chordForSegment(seg, tonic, scaleId) ?? out[out.length - 1];
     if (c) out.push(c);
   }
