@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-19 09:15
+- Tarea: backlog sin `[ ]`; se anade y hace en Fase 4 "Perfiles: duplicar y pedir persistencia" (SPEC.md 7, faltaba).
+- Hecho: src/profiles.ts con `uniqueName` (sufijo "(copia N)" sin pasar de 40), `duplicateProfile` (copia profunda) y `requestPersistence`; boton "Duplicar perfil" (usa el nombre escrito o el del perfil elegido) en src/ui/setup.ts; se pide `navigator.storage.persist()` al guardar, duplicar e importar. 3 tests nuevos y e2e de perfiles ampliado.
+- Verificacion: build, test (175), lint y e2e (26) ok; un fallo aislado en triggers.spec.ts no se repitio (2 reejecuciones ok). Captura `artifacts/perfiles.png`.
+- Preview Vercel: produccion no comprobada (red, proxy 403).
+- Siguiente: no quedan tareas `[ ]`; probar en movil real (iOS y Android) y afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-18 09:15
 - Tarea: Fase 5 "AUDIT: MelodyRecorder descarta los silencios".
 - Hecho: `MelodyNote.note` admite `null` (silencio). MelodyRecorder guarda los huecos entre notas como silencios (no el de antes de la primera ni despues de la ultima); chordForSegment no los cuenta en el encaje, un tramo solo de silencio repite el acorde anterior y suggestChords recorta silencios iniciales y finales. 6 tests nuevos.
