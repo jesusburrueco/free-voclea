@@ -51,6 +51,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Perfiles guardados (IndexedDB), exportar/importar JSON
 - [x] Calibracion guiada del micro y del rango vocal
 - [x] Todas las opciones de SPEC.md accesibles desde UI movil
+- [x] Perfiles: duplicar un perfil guardado con nombre libre (sin pisar otro) y pedir `navigator.storage.persist()` al guardar (SPEC.md 7), con tests y e2e 375x812
 
 ## Fase 5. Pulido
 - [x] AUDIT: MelodyRecorder (src/ui/chord-suggest-panel.ts) descarta los silencios, asi que los tramos de "Duracion de cada acorde" se miden sobre tiempo cantado y no sobre tiempo real: con pausas los acordes se desplazan respecto a la melodia. Registrar los silencios como tramos sin nota (que no cuenten en el encaje y repitan el acorde anterior) y probarlo en chord-suggest y en el panel

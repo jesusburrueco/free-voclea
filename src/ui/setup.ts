@@ -5,8 +5,11 @@ import {
   applyProfile,
   captureProfile,
   cleanName,
+  duplicateProfile,
   parseProfile,
+  requestPersistence,
   serializeProfile,
+  uniqueName,
   type ProfileStore,
 } from '../profiles';
 import { midiToName } from '../notes';
@@ -40,6 +43,7 @@ export function mountSetup(host: HTMLElement, deps: Deps): { feed(frame: Calibra
     <label for="perfil-lista">Perfiles guardados</label>
     <select id="perfil-lista" aria-label="Perfiles guardados"></select>
     <button id="perfil-cargar" type="button" aria-label="Cargar perfil">Cargar perfil</button>
+    <button id="perfil-duplicar" type="button" aria-label="Duplicar perfil">Duplicar perfil</button>
     <button id="perfil-borrar" type="button" aria-label="Borrar perfil">Borrar perfil</button>
     <button id="perfil-exportar" type="button" aria-label="Exportar perfil">Exportar perfil</button>
     <label for="perfil-importar">Importar perfil (.json)</label>
@@ -94,6 +98,9 @@ export function mountSetup(host: HTMLElement, deps: Deps): { feed(frame: Calibra
     }
   };
   void refresh();
+  const persist = (): void => {
+    void requestPersistence(typeof navigator === 'undefined' ? undefined : navigator.storage);
+  };
 
   q<HTMLButtonElement>('perfil-guardar').addEventListener('click', async () => {
     const name = cleanName(nameIn.value);
@@ -103,6 +110,7 @@ export function mountSetup(host: HTMLElement, deps: Deps): { feed(frame: Calibra
     }
     try {
       await store.put(captureProfile(name, localStorage));
+      persist();
       pStatus.textContent = `Perfil "${name}" guardado.`;
       await refresh(name);
     } catch {
@@ -117,6 +125,23 @@ export function mountSetup(host: HTMLElement, deps: Deps): { feed(frame: Calibra
     }
     applyProfile(p, localStorage);
     (deps.reload ?? (() => location.reload()))();
+  });
+  q<HTMLButtonElement>('perfil-duplicar').addEventListener('click', async () => {
+    const p = list.value ? await store.get(list.value) : undefined;
+    if (!p) {
+      pStatus.textContent = 'Elige un perfil.';
+      return;
+    }
+    try {
+      const typed = cleanName(nameIn.value);
+      const name = uniqueName(typed && typed !== p.name ? typed : p.name, await store.list());
+      await store.put(duplicateProfile(p, name));
+      persist();
+      pStatus.textContent = `Perfil "${p.name}" duplicado como "${name}".`;
+      await refresh(name);
+    } catch {
+      pStatus.textContent = 'No se pudo duplicar el perfil.';
+    }
   });
   q<HTMLButtonElement>('perfil-borrar').addEventListener('click', async () => {
     if (!list.value) return;
@@ -145,6 +170,7 @@ export function mountSetup(host: HTMLElement, deps: Deps): { feed(frame: Calibra
       return;
     }
     await store.put(p);
+    persist();
     pStatus.textContent = `Perfil "${p.name}" importado.`;
     await refresh(p.name);
     input.value = '';

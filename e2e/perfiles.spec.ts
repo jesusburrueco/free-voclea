@@ -33,6 +33,13 @@ test('los perfiles se guardan, cargan, exportan e importan', async ({ page }) =>
   const json = JSON.parse(readFileSync(path, 'utf8')) as { name: string; version: number };
   expect(json).toMatchObject({ name: 'Mi voz', version: 1 });
 
+  await page.getByLabel('Nombre del perfil').fill('');
+  await page.getByRole('button', { name: 'Duplicar perfil' }).click();
+  await expect(page.getByText('Perfil "Mi voz" duplicado como "Mi voz (copia)".')).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'Perfiles guardados' })).toHaveValue('Mi voz (copia)');
+  await page.getByRole('button', { name: 'Borrar perfil' }).click();
+  await expect(page.getByText('Perfil "Mi voz (copia)" borrado.')).toBeVisible();
+  await page.getByRole('combobox', { name: 'Perfiles guardados' }).selectOption('Mi voz');
   await page.getByRole('button', { name: 'Borrar perfil' }).click();
   await expect(page.getByText('Perfil "Mi voz" borrado.')).toBeVisible();
   await page.getByLabel('Importar perfil (.json)').setInputFiles({ name: 'otro.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ ...json, name: 'Importado' })) });

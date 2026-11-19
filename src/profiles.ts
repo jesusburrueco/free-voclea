@@ -131,3 +131,36 @@ export class IdbProfileStore implements ProfileStore {
     await this.run('readwrite', (s) => s.delete(name));
   }
 }
+
+/** Nombre libre para una copia: el deseado si no existe; si no, con sufijo "(copia)", "(copia 2)"... sin pasar de MAX_PROFILE_NAME. */
+export function uniqueName(desired: string, existing: readonly string[]): string {
+  const base = cleanName(desired) || 'Perfil';
+  const taken = new Set(existing);
+  if (!taken.has(base)) return base;
+  for (let i = 1; ; i++) {
+    const suffix = i === 1 ? ' (copia)' : ` (copia ${i})`;
+    const name = base.slice(0, MAX_PROFILE_NAME - suffix.length).trimEnd() + suffix;
+    if (!taken.has(name)) return name;
+  }
+}
+
+/** Copia profunda de un perfil con otro nombre. */
+export function duplicateProfile(p: Profile, name: string): Profile {
+  return { version: p.version, name: cleanName(name) || 'Perfil', data: structuredClone(p.data) };
+}
+
+interface PersistentStorage {
+  persisted?: () => Promise<boolean>;
+  persist?: () => Promise<boolean>;
+}
+
+/** Pide almacenamiento persistente para que el navegador no borre los perfiles. Devuelve si queda persistente. */
+export async function requestPersistence(storage: PersistentStorage | undefined): Promise<boolean> {
+  if (!storage?.persist) return false;
+  try {
+    if (storage.persisted && (await storage.persisted())) return true;
+    return await storage.persist();
+  } catch {
+    return false;
+  }
+}
