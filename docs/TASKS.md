@@ -24,6 +24,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Teclado de salida con silenciado de notas (tactil, multitouch)
 - [x] Visualizacion de afinacion en tiempo real (rueda de notas propia)
 - [x] Sugerencia de tonalidad a partir de notas cantadas
+- [x] Rueda de notas tactil: pulsar un sector silencia o activa esa nota, sincronizada con el teclado y con marca visual de silenciada (SPEC.md 2), con tests y e2e 375x812
 
 ## Fase 2. Triggers (beatbox)
 - [x] Detector de onsets

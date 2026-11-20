@@ -435,6 +435,17 @@ meter {
 .rueda path.fuera {
   fill: var(--field);
 }
+.rueda path[data-pc] {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+.rueda path.silenciada {
+  fill: var(--bg);
+  stroke: var(--line);
+  stroke-dasharray: 4 3;
+}
 .rueda path.activa {
   fill: var(--accent);
 }

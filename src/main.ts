@@ -221,10 +221,11 @@ if (app) {
   tonicSel?.addEventListener('change', applyScale);
   scaleSel?.addEventListener('change', applyScale);
   let anchor: number | null = null;
-  const wheel = new PitchWheel();
+  const wheel = new PitchWheel((pc) => keyboard.toggle(pc));
   app.querySelector('#afinacion')?.append(wheel.el);
   const keyboard = new MuteKeyboard((muted) => {
     engine?.setMuted(muted);
+    wheel.setMuted(muted);
     persist();
   });
   app.querySelector('#teclado')?.append(keyboard.el);
@@ -284,6 +285,7 @@ if (app) {
   if (rangeIn) rangeIn.value = String(settings.bendRange);
   if (sound) sound.checked = settings.sound;
   keyboard.setMuted(settings.muted);
+  wheel.setMuted(keyboard.muted);
   const gainIn = app.querySelector<HTMLInputElement>('#ganancia');
   const stickIn = app.querySelector<HTMLInputElement>('#pegajosidad');
   const uiSel = app.querySelector<HTMLSelectElement>('#escala-ui');
