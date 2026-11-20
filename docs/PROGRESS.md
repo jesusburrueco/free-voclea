@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-20 09:15
+- Tarea: backlog sin `[ ]`; se anade y hace en Fase 1 "Rueda de notas tactil" (SPEC.md 2: pulsar un punto de la rueda desactiva la nota, faltaba).
+- Hecho: src/ui/wheel.ts acepta `onTap` y `setMuted`; cada sector (data-pc) alterna el silenciado via `keyboard.toggle`, sincronizado en ambos sentidos y restaurado al cargar; sector silenciado con trazo discontinuo (src/style.css). test/wheel.test.ts (3) y e2e nuevo en e2e/teclado.spec.ts (sector >= 44 px, sincronia, persistencia tras recargar).
+- Verificacion: build, test (178), lint y e2e (27) ok con CHROMIUM_PATH=/opt/pw-browsers/chromium (sin el, Playwright busca un headless que no existe). triggers.spec.ts:32 fallo una vez en la suite completa y paso en solitario (intermitente ya visto). Captura `artifacts/rueda-silenciar.png`.
+- Preview Vercel: produccion no comprobada (red, proxy 403).
+- Siguiente: no quedan tareas `[ ]`; estabilizar triggers.spec.ts:32, probar en movil real y afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-19 09:15
 - Tarea: backlog sin `[ ]`; se anade y hace en Fase 4 "Perfiles: duplicar y pedir persistencia" (SPEC.md 7, faltaba).
 - Hecho: src/profiles.ts con `uniqueName` (sufijo "(copia N)" sin pasar de 40), `duplicateProfile` (copia profunda) y `requestPersistence`; boton "Duplicar perfil" (usa el nombre escrito o el del perfil elegido) en src/ui/setup.ts; se pide `navigator.storage.persist()` al guardar, duplicar e importar. 3 tests nuevos y e2e de perfiles ampliado.
