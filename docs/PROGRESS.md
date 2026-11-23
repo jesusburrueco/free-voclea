@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-23 09:15
+- Tarea: backlog sin `[ ]`; se anade y hace en Fase 5 "Estabilizar e2e/triggers.spec.ts:32" (intermitente desde hace varias sesiones).
+- Hecho: causa encontrada: la grabacion siempre terminaba (5 ejemplos), pero el aviso "Listo." lo sobrescribe `onHit` con el siguiente pitido ya clasificado y el test a veces no llegaba a verlo. El test espera ahora a "5 ejemplos" en el slot 3, al boton "Grabar" y a que el aviso deje de pedir sonidos.
+- Verificacion: antes 2 de 4 repeticiones fallaban; despues 8 de 8 ok. build, test (178), lint y e2e (27) ok con CHROMIUM_PATH=/opt/pw-browsers/chromium. Sin cambios de UI ni capturas nuevas.
+- Preview Vercel: produccion no comprobada (red).
+- Siguiente: no quedan tareas `[ ]`; valorar que "Listo." dure unos segundos en la UI, probar en movil real y afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-20 09:15
 - Tarea: backlog sin `[ ]`; se anade y hace en Fase 1 "Rueda de notas tactil" (SPEC.md 2: pulsar un punto de la rueda desactiva la nota, faltaba).
 - Hecho: src/ui/wheel.ts acepta `onTap` y `setMuted`; cada sector (data-pc) alterna el silenciado via `keyboard.toggle`, sincronizado en ambos sentidos y restaurado al cargar; sector silenciado con trazo discontinuo (src/style.css). test/wheel.test.ts (3) y e2e nuevo en e2e/teclado.spec.ts (sector >= 44 px, sincronia, persistencia tras recargar).
