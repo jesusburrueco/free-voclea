@@ -35,6 +35,10 @@ test('con el micro falso se pueden grabar ejemplos de un sonido', async ({ page 
   await page.getByRole('button', { name: 'Activar micro' }).click();
   await expect(page.locator('#estado')).toHaveText('Micro activo');
   await page.getByRole('button', { name: 'Grabar sonido 3' }).click();
-  await expect(page.getByText('Listo.')).toBeVisible({ timeout: 45000 });
-  await expect(page.getByText('5 ejemplos').first()).toBeVisible();
+  // "Listo." dura hasta el siguiente golpe (que ya se clasifica y cambia el aviso),
+  // asi que se espera al estado duradero del slot y no al texto transitorio.
+  const slot = page.locator('fieldset.slot').filter({ has: page.getByLabel('Nombre del sonido 3') });
+  await expect(slot.getByText('5 ejemplos')).toBeVisible({ timeout: 20000 });
+  await expect(page.getByRole('button', { name: 'Grabar sonido 3' })).toHaveText('Grabar');
+  await expect(page.locator('#trig-estado')).not.toHaveText(/^Haz el sonido/);
 });
