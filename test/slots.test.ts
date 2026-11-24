@@ -1,12 +1,21 @@
 import { describe, expect, it, vi } from 'vitest';
 import { DRUM_IDS, velocityGain } from '../src/audio/drums';
 import { FEATURE_DIM } from '../src/beat/features';
-import { MAX_EXAMPLES_PER_SLOT, addExample, clampChannel, defaultSlots, sanitizeSettings, sanitizeSlots, toExamples } from '../src/beat/slots';
+import { MAX_EXAMPLES_PER_SLOT, READY_HOLD_MS, addExample, clampChannel, defaultSlots, hitMayOverwriteStatus, sanitizeSettings, sanitizeSlots, toExamples } from '../src/beat/slots';
 import { MidiOutput } from '../src/midi/output';
 
 const vec = (v = 0): number[] => new Array<number>(FEATURE_DIM).fill(v);
 
 describe('slots', () => {
+  it('el aviso Listo. se protege de los golpes durante READY_HOLD_MS', () => {
+    const t0 = 1000;
+    const until = t0 + READY_HOLD_MS;
+    expect(READY_HOLD_MS).toBeGreaterThanOrEqual(2000);
+    expect(hitMayOverwriteStatus(t0, until)).toBe(false);
+    expect(hitMayOverwriteStatus(until - 1, until)).toBe(false);
+    expect(hitMayOverwriteStatus(until, until)).toBe(true);
+    expect(hitMayOverwriteStatus(0, 0)).toBe(true);
+  });
   it('datos invalidos dan los valores por defecto', () => {
     expect(sanitizeSlots(null, DRUM_IDS)).toEqual(defaultSlots());
     expect(sanitizeSlots('x', DRUM_IDS)).toEqual(defaultSlots());

@@ -87,3 +87,11 @@ export function addExample(slots: Slot[], slot: number, vec: number[]): void {
   s.examples.push(vec);
   if (s.examples.length > MAX_EXAMPLES_PER_SLOT) s.examples.shift();
 }
+
+/** Tiempo que el aviso "Listo." se mantiene antes de que un golpe pueda sustituirlo. */
+export const READY_HOLD_MS = 2500;
+
+/** Un golpe solo puede sobrescribir el aviso de estado si ya paso el tiempo de retencion. */
+export function hitMayOverwriteStatus(now: number, holdUntil: number): boolean {
+  return now >= holdUntil;
+}

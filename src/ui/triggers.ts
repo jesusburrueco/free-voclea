@@ -5,10 +5,12 @@ import {
   EXAMPLES_PER_TRAINING,
   FIXED_VELOCITY,
   MAX_NAME_LENGTH,
+  READY_HOLD_MS,
   addExample,
   clampChannel,
   clampNote,
   defaultSettings,
+  hitMayOverwriteStatus,
   sanitizeSettings,
   sanitizeSlots,
   toExamples,
@@ -39,6 +41,8 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
   const state = load();
   let armed: number | null = null;
   let collected = 0;
+  /** Hasta cuando (performance.now) se protege el aviso "Listo." de los golpes. */
+  let holdUntil = 0;
 
   const save = (): void => {
     try {
@@ -188,6 +192,7 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
         }
         armed = armed === i ? null : i;
         collected = 0;
+        holdUntil = 0;
         status.textContent = armed === null ? '' : `Haz el sonido ${EXAMPLES_PER_TRAINING} veces.`;
         deps.engine()?.arm(armed);
         render();
@@ -213,6 +218,7 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
     onEngineStop(): void {
       armed = null;
       collected = 0;
+      holdUntil = 0;
       status.textContent = '';
       render();
     },
@@ -223,7 +229,7 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
       const s = state.slots[slot];
       if (!s) return;
       if (s.dest !== 'interno') deps.midi()?.sendTrigger(s.note, s.velocity ? velocity : FIXED_VELOCITY);
-      status.textContent = `${s.name} (${velocity})`;
+      if (hitMayOverwriteStatus(performance.now(), holdUntil)) status.textContent = `${s.name} (${velocity})`;
       flash(slot);
     },
     onExample(slot: number, vec: number[]): void {
@@ -234,6 +240,7 @@ export function mountTriggers(host: HTMLElement, deps: Deps) {
         armed = null;
         collected = 0;
         status.textContent = 'Listo.';
+        holdUntil = performance.now() + READY_HOLD_MS;
         deps.engine()?.arm(null);
       }
       save();

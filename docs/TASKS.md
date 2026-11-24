@@ -63,3 +63,4 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Accesibilidad y modo oscuro
 - [x] Pagina de ayuda propia
 - [x] Estabilizar e2e/triggers.spec.ts:32 (intermitente): esperar al estado duradero del slot (5 ejemplos, boton Grabar) en vez del aviso "Listo.", que el siguiente golpe sobrescribe
+- [x] Aviso "Listo." de grabacion de triggers: mantenerlo unos segundos (READY_HOLD_MS) aunque lleguen golpes, con test y e2e 375x812
