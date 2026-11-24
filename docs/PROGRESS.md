@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-24 09:15
+- Tarea: backlog sin `[ ]`; se anade y hace en Fase 5 "Aviso Listo. de grabacion de triggers" (sugerido en la sesion anterior).
+- Hecho: src/beat/slots.ts con `READY_HOLD_MS` (2,5 s) y `hitMayOverwriteStatus`; en src/ui/triggers.ts los golpes no sustituyen "Listo." durante ese tiempo (se anula al grabar de nuevo o parar el motor). Test unitario y e2e/triggers.spec.ts comprueba que "Listo." sigue visible 0,8 s despues.
+- Verificacion: build, test (179), lint y e2e (27) ok con CHROMIUM_PATH=/opt/pw-browsers/chromium; triggers.spec.ts:32 6 de 6 repeticiones ok. Captura `artifacts/triggers-listo.png`.
+- Preview Vercel: produccion no comprobada (red, proxy 403).
+- Siguiente: no quedan tareas `[ ]`; probar en movil real (iOS y Android) y afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-23 09:15
 - Tarea: backlog sin `[ ]`; se anade y hace en Fase 5 "Estabilizar e2e/triggers.spec.ts:32" (intermitente desde hace varias sesiones).
 - Hecho: causa encontrada: la grabacion siempre terminaba (5 ejemplos), pero el aviso "Listo." lo sobrescribe `onHit` con el siguiente pitido ya clasificado y el test a veces no llegaba a verlo. El test espera ahora a "5 ejemplos" en el slot 3, al boton "Grabar" y a que el aviso deje de pedir sonidos.
