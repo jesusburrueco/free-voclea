@@ -13,9 +13,16 @@ describe('PitchWheel tactil', () => {
   it('pulsar un sector llama a onTap con su clase de altura', () => {
     const taps: number[] = [];
     const w = new PitchWheel((pc) => taps.push(pc));
-    sector(w, 6).dispatchEvent(new Event('pointerdown', { cancelable: true }));
-    sector(w, 0).dispatchEvent(new Event('pointerdown', { cancelable: true }));
+    sector(w, 6).dispatchEvent(new Event('click'));
+    sector(w, 0).dispatchEvent(new Event('click'));
     expect(taps).toEqual([6, 0]);
+  });
+
+  it('un pointerdown sin click (arrastre para desplazar) no silencia', () => {
+    const taps: number[] = [];
+    const w = new PitchWheel((pc) => taps.push(pc));
+    sector(w, 2).dispatchEvent(new Event('pointerdown', { cancelable: true }));
+    expect(taps).toEqual([]);
   });
 
   it('marca los silenciados y conserva la marca al actualizar la nota viva', () => {
@@ -32,7 +39,7 @@ describe('PitchWheel tactil', () => {
     let wheel: PitchWheel | null = null;
     const kb = new MuteKeyboard((muted) => wheel?.setMuted(muted));
     wheel = new PitchWheel((pc) => kb.toggle(pc));
-    sector(wheel, 3).dispatchEvent(new Event('pointerdown', { cancelable: true }));
+    sector(wheel, 3).dispatchEvent(new Event('click'));
     expect([...kb.muted]).toEqual([3]);
     expect(kb.el.querySelector('[data-pc="3"]')?.getAttribute('aria-pressed')).toBe('true');
     expect([...wheel.mutedSet()]).toEqual([3]);

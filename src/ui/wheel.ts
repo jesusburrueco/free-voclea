@@ -32,10 +32,8 @@ export class PitchWheel {
       path.setAttribute('d', `M ${point(a0, 60)} L ${point(a0, 100)} A 100 100 0 0 1 ${point(a1, 100)} L ${point(a1, 60)} A 60 60 0 0 0 ${point(a0, 60)} Z`);
       path.dataset['pc'] = String(pc);
       if (onTap) {
-        path.addEventListener('pointerdown', (e) => {
-          e.preventDefault();
-          this.onTap?.(pc);
-        });
+        // click y no pointerdown: un arrastre para desplazar la pagina no debe silenciar notas.
+        path.addEventListener('click', () => this.onTap?.(pc));
       }
       this.el.append(path);
       this.sectors.push(path);
