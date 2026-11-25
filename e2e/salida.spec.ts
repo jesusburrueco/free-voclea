@@ -1,0 +1,31 @@
+import { expect, test } from '@playwright/test';
+import { abrirTodo } from './helpers';
+
+test('los ajustes de melodia, acordes y CC se limitan y se recuerdan', async ({ page }) => {
+  await page.goto('/');
+  await abrirTodo(page);
+  await page.getByLabel('Acordes', { exact: true }).check();
+  await page.getByLabel('Octava de la melodia').fill('9');
+  await page.getByLabel('Octava de la melodia').blur();
+  await expect(page.getByLabel('Octava de la melodia')).toHaveValue('3');
+  await page.getByLabel('Canal MIDI de los acordes').fill('5');
+  await page.getByLabel('Canal MIDI de los acordes').blur();
+  await page.getByLabel('Sonido interno de los acordes').selectOption('pad');
+  await page.getByLabel('Grado V', { exact: true }).selectOption('seventh');
+  await page.getByLabel('Bajo', { exact: true }).selectOption('follow');
+  await page.getByLabel('Volumen de la voz').check();
+  await page.getByLabel('CC del volumen').fill('7');
+  await page.getByLabel('CC del volumen').blur();
+  await page.reload();
+  await abrirTodo(page);
+  await expect(page.getByLabel('Acordes', { exact: true })).toBeChecked();
+  await expect(page.getByLabel('Octava de la melodia')).toHaveValue('3');
+  await expect(page.getByLabel('Canal MIDI de los acordes')).toHaveValue('5');
+  await expect(page.getByLabel('Sonido interno de los acordes')).toHaveValue('pad');
+  await expect(page.getByLabel('Grado V', { exact: true })).toHaveValue('seventh');
+  await expect(page.getByLabel('Bajo', { exact: true })).toHaveValue('follow');
+  await expect(page.getByLabel('CC del volumen')).toHaveValue('7');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  expect(overflow).toBe(false);
+  await page.screenshot({ path: 'artifacts/salida.png', fullPage: true });
+});
