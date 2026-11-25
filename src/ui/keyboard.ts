@@ -5,6 +5,7 @@ export class MuteKeyboard {
   readonly el: HTMLDivElement;
   private readonly keys: HTMLButtonElement[] = [];
   readonly muted = new Set<number>();
+  private inScale: ReadonlySet<number> = new Set(Array.from({ length: 12 }, (_, i) => i));
 
   constructor(private readonly onChange: (muted: ReadonlySet<number>) => void) {
     this.el = document.createElement('div');
@@ -18,7 +19,7 @@ export class MuteKeyboard {
       key.dataset['pc'] = String(pc);
       key.className = NOTE_NAMES[pc]?.includes('#') ? 'negra' : 'blanca';
       key.setAttribute('aria-pressed', 'false');
-      key.setAttribute('aria-label', `${NOTE_NAMES[pc]} permitida`);
+      key.setAttribute('aria-label', this.label(pc));
       key.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         this.toggle(pc);
@@ -40,7 +41,7 @@ export class MuteKeyboard {
     for (const pc of pcs) this.muted.add(pc);
     this.keys.forEach((key, pc) => {
       key.setAttribute('aria-pressed', String(this.muted.has(pc)));
-      key.setAttribute('aria-label', `${NOTE_NAMES[pc]} ${this.muted.has(pc) ? 'silenciada' : 'permitida'}`);
+      key.setAttribute('aria-label', this.label(pc));
     });
   }
 
@@ -50,9 +51,26 @@ export class MuteKeyboard {
     const key = this.keys[pc];
     if (key) {
       key.setAttribute('aria-pressed', String(this.muted.has(pc)));
-      key.setAttribute('aria-label', `${NOTE_NAMES[pc]} ${this.muted.has(pc) ? 'silenciada' : 'permitida'}`);
+      key.setAttribute('aria-label', this.label(pc));
     }
     this.onChange(this.muted);
+  }
+
+  /**
+   * Marca las teclas fuera de la tonalidad y escala elegidas (clase `fuera`).
+   * Solo informa: el silenciado del usuario es independiente y se conserva.
+   */
+  setScale(inScale: ReadonlySet<number>): void {
+    this.inScale = new Set(inScale);
+    this.keys.forEach((key, pc) => {
+      key.classList.toggle('fuera', !this.inScale.has(pc));
+      key.setAttribute('aria-label', this.label(pc));
+    });
+  }
+
+  private label(pc: number): string {
+    const state = this.muted.has(pc) ? 'silenciada' : 'permitida';
+    return `${NOTE_NAMES[pc] ?? ''} ${state}${this.inScale.has(pc) ? '' : ', fuera de escala'}`;
   }
 
   /** Ilumina la nota que suena (o ninguna). */

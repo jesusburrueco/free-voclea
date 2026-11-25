@@ -479,6 +479,11 @@ meter {
   background: var(--field);
   border: 1px solid var(--line);
 }
+.teclado button.fuera {
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  background: transparent;
+}
 .teclado button[aria-pressed='true'] {
   opacity: 0.35;
   text-decoration: line-through;

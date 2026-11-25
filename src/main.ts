@@ -247,6 +247,7 @@ if (app) {
     const tonic = Number(tonicSel?.value ?? 0);
     inScale = new Set(getScale(scaleSel?.value ?? 'chromatic').intervals.map((i) => (tonic + i) % 12));
     wheel.update(null, 0, inScale);
+    keyboard.setScale(inScale);
   };
   tonicSel?.addEventListener('change', refreshWheelScale);
   const chordSuggest = mountChordSuggest(app.querySelector<HTMLElement>('#sugerir-acordes') as HTMLElement, () => ({ tonic: Number(tonicSel?.value ?? 0), scaleId: scaleSel?.value ?? 'major' }));
