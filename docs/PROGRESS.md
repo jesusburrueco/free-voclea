@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-26 09:15
+- Tarea: Fase 1 "Teclado de salida (2/2)": marcar las notas extra del acorde que suena en modo acordes (SPEC.md 2).
+- Hecho: `MuteKeyboard.setChord` en src/ui/keyboard.ts marca con clase `acorde` (barra inferior de acento) las clases de nota del acorde distintas de la cantada y lo anade a la etiqueta accesible; main.ts lo llama con cada evento de acordes (on marca, off limpia). No cambia el silenciado. 2 tests en test/wheel.test.ts y e2e nuevo e2e/teclado-acorde.spec.ts (Do sostenido por micro falso en Do mayor: marca E y G, no C, >= 44 px, se limpia en el silencio).
+- Verificacion: build, test (185), lint y e2e (29) ok con CHROMIUM_PATH=/opt/pw-browsers/chromium, dos pasadas completas. Captura `artifacts/teclado-acorde.png`.
+- Preview Vercel: produccion no comprobada (red, proxy 403).
+- Siguiente: no quedan tareas `[ ]`; probar en movil real (iOS y Android) y afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-25 09:15
 - Tarea: backlog sin `[ ]`; se anade en Fase 1 "Teclado de salida" (SPEC.md 2: el teclado debe mostrar las restricciones de tonalidad y las notas extra de acordes, faltaba), partida en 2. Hecha la 1/2.
 - Hecho: `MuteKeyboard.setScale` en src/ui/keyboard.ts marca con clase `fuera` (borde discontinuo, texto atenuado) las teclas fuera de tonica y escala, y lo anade a la etiqueta accesible; se llama desde refreshWheelScale en main.ts (cambio de tonica, escala, sugerencia aplicada y carga). No cambia el silenciado. 3 tests en test/wheel.test.ts y e2e nuevo en e2e/teclado.spec.ts (Sol mayor, 5 teclas fuera, >= 44 px, persiste tras recargar).
