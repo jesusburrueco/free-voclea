@@ -26,7 +26,7 @@ Regla: el agente coge la primera `[ ]` de la fase activa mas baja. Puede anadir 
 - [x] Sugerencia de tonalidad a partir de notas cantadas
 - [x] Rueda de notas tactil: pulsar un sector silencia o activa esa nota, sincronizada con el teclado y con marca visual de silenciada (SPEC.md 2), con tests y e2e 375x812
 - [x] Teclado de salida (1/2): marcar las teclas fuera de la tonalidad y escala elegidas (SPEC.md 2, restricciones de tonalidad), sincronizado al cambiar tonica o escala, con tests y e2e 375x812
-- [ ] Teclado de salida (2/2): marcar las notas extra del acorde que suena en modo acordes (SPEC.md 2), con tests y e2e 375x812
+- [x] Teclado de salida (2/2): marcar las notas extra del acorde que suena en modo acordes (SPEC.md 2), con tests y e2e 375x812
 
 ## Fase 2. Triggers (beatbox)
 - [x] Detector de onsets

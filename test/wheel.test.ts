@@ -83,4 +83,29 @@ describe('MuteKeyboard y escala', () => {
     expect(key(k, 6).getAttribute('aria-label')).toBe('F# silenciada, fuera de escala');
     expect(key(k, 6).classList.contains('fuera')).toBe(true);
   });
+
+  it('marca las notas extra del acorde sin la nota cantada y las quita al soltar', () => {
+    const changes: number[][] = [];
+    const k = new MuteKeyboard((m) => changes.push([...m]));
+    const marcadas = (): number[] => Array.from({ length: 12 }, (_, pc) => pc).filter((pc) => key(k, pc).classList.contains('acorde'));
+    k.setChord([48, 60, 64, 67], 0);
+    expect(marcadas()).toEqual([4, 7]);
+    expect(key(k, 4).getAttribute('aria-label')).toBe('E permitida, nota del acorde');
+    expect(key(k, 0).getAttribute('aria-label')).toBe('C permitida');
+    k.setChord([62, 67, 71], 2);
+    expect(marcadas()).toEqual([7, 11]);
+    k.setChord(null);
+    expect(marcadas()).toEqual([]);
+    expect(changes).toEqual([]);
+  });
+
+  it('sin nota cantada marca todas las notas del acorde y se combina con escala y silenciado', () => {
+    const k = new MuteKeyboard(() => {});
+    k.setScale(new Set([0, 2, 4, 5, 7, 9, 11]));
+    k.toggle(10);
+    k.setChord([55, 58, 62]);
+    expect(key(k, 10).getAttribute('aria-label')).toBe('A# silenciada, fuera de escala, nota del acorde');
+    expect(key(k, 7).classList.contains('acorde')).toBe(true);
+    expect(k.muted.has(10)).toBe(true);
+  });
 });

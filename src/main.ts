@@ -434,7 +434,10 @@ if (app) {
           }
           for (const o of out ?? []) {
             midi?.sendOut(o);
-            if (o.part === 'chord' && chordEl) chordEl.textContent = o.type === 'on' ? o.notes.map(midiToName).join(' ') : '';
+            if (o.part === 'chord') {
+              if (chordEl) chordEl.textContent = o.type === 'on' ? o.notes.map(midiToName).join(' ') : '';
+              keyboard.setChord(o.type === 'on' ? o.notes : null, heldNote === null ? null : ((heldNote % 12) + 12) % 12);
+            }
           }
           applyBend(freq ?? 0);
           for (const m of cc.update({ db: toDb(rms), centroidHz: centroid ?? 0, voiced: heldNote !== null })) midi?.sendCc(m.controller, m.value, m.channel);

@@ -488,6 +488,9 @@ meter {
   opacity: 0.35;
   text-decoration: line-through;
 }
+.teclado button.acorde {
+  box-shadow: inset 0 -6px 0 var(--accent);
+}
 .teclado button.suena {
   background: var(--accent);
   color: #fff;

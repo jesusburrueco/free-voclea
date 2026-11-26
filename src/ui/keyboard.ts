@@ -6,6 +6,7 @@ export class MuteKeyboard {
   private readonly keys: HTMLButtonElement[] = [];
   readonly muted = new Set<number>();
   private inScale: ReadonlySet<number> = new Set(Array.from({ length: 12 }, (_, i) => i));
+  private chordExtra = new Set<number>();
 
   constructor(private readonly onChange: (muted: ReadonlySet<number>) => void) {
     this.el = document.createElement('div');
@@ -68,9 +69,28 @@ export class MuteKeyboard {
     });
   }
 
+  /**
+   * Marca las notas extra del acorde que suena (clase `acorde`): las clases de nota del
+   * acorde distintas de la nota cantada. `null` o lista vacia quita la marca.
+   */
+  setChord(notes: readonly number[] | null, sungPc: number | null = null): void {
+    const extra = new Set<number>();
+    for (const n of notes ?? []) {
+      const pc = ((Math.round(n) % 12) + 12) % 12;
+      if (pc !== sungPc) extra.add(pc);
+    }
+    this.chordExtra = extra;
+    this.keys.forEach((key, pc) => {
+      key.classList.toggle('acorde', extra.has(pc));
+      key.setAttribute('aria-label', this.label(pc));
+    });
+  }
+
   private label(pc: number): string {
     const state = this.muted.has(pc) ? 'silenciada' : 'permitida';
-    return `${NOTE_NAMES[pc] ?? ''} ${state}${this.inScale.has(pc) ? '' : ', fuera de escala'}`;
+    const scale = this.inScale.has(pc) ? '' : ', fuera de escala';
+    const chord = this.chordExtra.has(pc) ? ', nota del acorde' : '';
+    return `${NOTE_NAMES[pc] ?? ''} ${state}${scale}${chord}`;
   }
 
   /** Ilumina la nota que suena (o ninguna). */
