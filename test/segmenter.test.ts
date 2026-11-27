@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NoteSegmenter, type FrameInput, type NoteEvent } from '../src/audio/segmenter';
+import { NoteSegmenter, changeTimeMs, type FrameInput, type NoteEvent } from '../src/audio/segmenter';
 import { midiToFreq } from '../src/notes';
 
 const DT = 10;
@@ -80,5 +80,48 @@ describe('NoteSegmenter', () => {
     run(seg, loud(64), 100);
     expect(seg.reset()).toEqual([{ type: 'off', note: 64 }]);
     expect(seg.reset()).toEqual([]);
+  });
+
+  it('la pegajosidad escala el tiempo de cambio sin tocar el defecto', () => {
+    expect(changeTimeMs(50, 0.25)).toBe(50);
+    expect(changeTimeMs(50, 0)).toBe(25);
+    expect(changeTimeMs(50, 1)).toBe(125);
+    expect(changeTimeMs(50, 5)).toBe(125);
+    expect(changeTimeMs(50, -1)).toBe(25);
+  });
+
+  it('con pegajosidad alta un salto de 80 ms no cambia la nota', () => {
+    const alta = new NoteSegmenter({ stickiness: 1 });
+    run(alta, loud(60), 100);
+    expect(run(alta, loud(63), 80)).toEqual([]);
+    expect(run(alta, loud(60), 100)).toEqual([]);
+    expect(alta.activeNote).toBe(60);
+    expect(run(alta, loud(63), 130)).toEqual([
+      { type: 'off', note: 60 },
+      { type: 'on', note: 63 },
+    ]);
+  });
+
+  it('con pegajosidad baja el cambio es mas agil', () => {
+    const baja = new NoteSegmenter({ stickiness: 0 });
+    run(baja, loud(60), 100);
+    expect(run(baja, loud(62), 30)).toEqual([
+      { type: 'off', note: 60 },
+      { type: 'on', note: 62 },
+    ]);
+    const normal = new NoteSegmenter();
+    run(normal, loud(60), 100);
+    expect(run(normal, loud(62), 30)).toEqual([]);
+  });
+
+  it('setOptions de pegajosidad afecta al tiempo de cambio en caliente', () => {
+    const seg = new NoteSegmenter();
+    run(seg, loud(60), 100);
+    seg.setOptions({ stickiness: 1 });
+    expect(run(seg, loud(63), 100)).toEqual([]);
+    expect(run(seg, loud(63), 30)).toEqual([
+      { type: 'off', note: 60 },
+      { type: 'on', note: 63 },
+    ]);
   });
 });

@@ -14,7 +14,10 @@ export interface SegmenterOptions {
   offMs: number;
   /** Pegajosidad: semitonos extra, sobre el medio semitono, para abandonar la nota actual. */
   stickiness: number;
-  /** Tiempo minimo que debe sostenerse otra nota antes de cambiar (ms). */
+  /**
+   * Tiempo base que debe sostenerse otra nota antes de cambiar (ms), referido a la
+   * pegajosidad por defecto. El tiempo real lo escala la pegajosidad (ver changeTimeMs).
+   */
   changeMs: number;
 }
 
@@ -27,6 +30,16 @@ export const defaultSegmenterOptions: SegmenterOptions = {
   stickiness: 0.25,
   changeMs: 50,
 };
+
+/**
+ * Tiempo minimo (ms) que otra nota debe sostenerse para sustituir a la actual.
+ * Escala lineal con la pegajosidad (decision propia): 0 da la mitad de changeMs,
+ * el valor por defecto (0,25) da changeMs y 1 da 2,5 veces changeMs.
+ */
+export function changeTimeMs(changeMs: number, stickiness: number): number {
+  const s = Math.min(1, Math.max(0, stickiness));
+  return changeMs * (0.5 + 2 * s);
+}
 
 export interface FrameInput {
   rms: number;
@@ -96,7 +109,7 @@ export class NoteSegmenter {
       this.candidate = note;
       this.candidateMs = dtMs;
     }
-    const needed = this.current === null ? o.onMs : o.changeMs;
+    const needed = this.current === null ? o.onMs : changeTimeMs(o.changeMs, o.stickiness);
     if (this.candidateMs >= needed) {
       if (this.current !== null) events.push({ type: 'off', note: this.current });
       events.push({ type: 'on', note });
