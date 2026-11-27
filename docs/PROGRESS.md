@@ -10,6 +10,14 @@ Formato por sesion (la mas reciente arriba, maximo 8 lineas):
 - Siguiente:
 - Bloqueos:
 
+## 2026-11-27 09:15
+- Tarea: backlog sin `[ ]`; se anade y hace en Fase 1 "Pegajosidad completa" (SPEC.md 2 pide histeresis y tiempo minimo; el control solo movia la histeresis).
+- Hecho: `changeTimeMs` en src/audio/segmenter.ts escala el tiempo de cambio con la pegajosidad (0: 25 ms, 0,25 por defecto: 50 ms sin cambios, 1: 125 ms); el segmentador lo usa y `setOptions` lo aplica en caliente. 4 tests nuevos en test/segmenter.test.ts. Sin cambios de UI, por eso sin e2e nuevo.
+- Verificacion: build, test (189), lint y e2e (29) ok con CHROMIUM_PATH=/opt/pw-browsers/chromium. Sin capturas nuevas.
+- Preview Vercel: produccion no comprobada (red, curl sin respuesta).
+- Siguiente: no quedan tareas `[ ]`; probar en movil real (iOS y Android) y afinar umbrales con voz real.
+- Bloqueos: ninguno. Se trabajo en claude/dev segun la tarea programada.
+
 ## 2026-11-26 09:15
 - Tarea: Fase 1 "Teclado de salida (2/2)": marcar las notas extra del acorde que suena en modo acordes (SPEC.md 2).
 - Hecho: `MuteKeyboard.setChord` en src/ui/keyboard.ts marca con clase `acorde` (barra inferior de acento) las clases de nota del acorde distintas de la cantada y lo anade a la etiqueta accesible; main.ts lo llama con cada evento de acordes (on marca, off limpia). No cambia el silenciado. 2 tests en test/wheel.test.ts y e2e nuevo e2e/teclado-acorde.spec.ts (Do sostenido por micro falso en Do mayor: marca E y G, no C, >= 44 px, se limpia en el silencio).
